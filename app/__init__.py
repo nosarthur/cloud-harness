@@ -1,6 +1,8 @@
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, jsonify, render_template
 from flask_login import LoginManager
 from flask_restful import Resource, Api
+
+from app.users.routes import users_bp
 
 from config import config
 
@@ -15,8 +17,8 @@ def create_app(config_name):
     login_manager.init_app(app)
 
     @app.route("/")
-    def hello():
-        return "Hello World!"
+    def index():
+        return render_template('index.html')
 
     api_bp = Blueprint('api', __name__)
     api = Api(api_bp)
@@ -24,5 +26,6 @@ def create_app(config_name):
     # add resource
 
     app.register_blueprint(api_bp, url_prefix="/api/v1")
+    app.register_blueprint(users_bp)
 
     return app
