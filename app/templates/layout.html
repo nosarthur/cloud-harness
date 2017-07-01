@@ -8,6 +8,11 @@
 		href='{{ url_for('static', filename='style.css') }}'>
 {% endblock %}
 
+{% block head %}
+{{ super() }}
+<link rel='shortcut icon' href='{{ url_for('static', filename='img/favicon.ico') }}'>
+{% endblock %}
+
 {% block navbar %}
 <div class='navbar navbar-default' role='navigation'>
     <div class='container'>
