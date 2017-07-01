@@ -3,13 +3,12 @@ from flask_login import LoginManager
 from flask_restful import Resource, Api
 from flask_sqlalchemy import SQLAlchemy
 
-from app.users.routes import users_bp
-
 from config import config
+from .views.auth import auth
 
 
 login_manager = LoginManager()
-login_manager.login_view = 'auth.login'
+#login_manager.login_view = 'auth.login'
 
 
 class Job(Resource):
@@ -35,20 +34,19 @@ class JobList(Resource):
 
 
 def create_app(config_name):
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config[config_name])
-    login_manager.init_app(app)
-    db = SQLAlchemy(app)
+    app.config.from_pyfile('config.py')
 
-    api_bp = Blueprint('api', __name__)
-    api = Api(api_bp)
+    login_manager.init_app(app)
+    api = Api(app)
+    #db = SQLAlchemy(app)
 
     # add resource
-    api.add_resource(Job, '/')
+    api.add_resource(Job, '/jobs/<string:job_id>')
 #    api.add_resource(auth.AuthLogin, '/auth/login')
 #    api.add_resource(auth.AuthRegister, '/auth/register')
 
-    app.register_blueprint(api_bp, url_prefix="/api/v1")
-    app.register_blueprint(users_bp)
+    app.register_blueprint(auth, url_prefix='/auth')
 
     return app
