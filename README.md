@@ -1,4 +1,9 @@
 # cloud-harness
+
+A wep application for AWS management.
+
+## components
+
 python driver, HTTP server, database, and AWS worker
 
 It has five components
@@ -7,3 +12,14 @@ It has five components
 * python driver code
 * cloud workers (not included)
 * web storge (not included)
+
+## script
+
+`python manager.py initDB`
+
+`python manager.py adduser`
+
+For database 
+
+`python manager.py db migrate`
+`python manager.py db upgrade`

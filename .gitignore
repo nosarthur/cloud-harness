@@ -3,3 +3,5 @@
 migrations/alembic.ini
 venv/
 instance/
+tests/.cache/
+.cache/

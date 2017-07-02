@@ -3,6 +3,16 @@
 {% block page_content %} 
 
 <script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
-<p> hello world! nos</p>
+
+<div id='dashboard'>
+
+</div>
+
+
+<script>
+var vm = new Vue({
+  el: '#dashboard',    
+});
+</script>
 
 {% endblock %}
