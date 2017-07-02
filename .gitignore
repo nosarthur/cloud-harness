@@ -1,4 +1,5 @@
 *.pyc
 *.json
+migrations/alembic.ini
 venv/
 instance/
