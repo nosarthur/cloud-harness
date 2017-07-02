@@ -15,11 +15,14 @@ It has five components
 
 ## script
 
-`python manager.py initDB`
 
 `python manager.py adduser`
 
 For database 
 
-`python manager.py db migrate`
-`python manager.py db upgrade`
+`python manager.py initDB`
+
+```
+python manager.py db migrate
+python manager.py db upgrade
+```

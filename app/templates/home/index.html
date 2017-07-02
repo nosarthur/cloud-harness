@@ -3,15 +3,50 @@
 {% block page_content %} 
 
 <script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
 
 <div id='dashboard'>
-
+  <div class='container'>
+    <div class='row'>
+      <div class='col-md-6 col-md-offset-3'>
+        <span v-text='summary'></span> jobs in total
+      </div>
+      <div class='col-md-12'>
+        <ul>
+          <li v-for='job in jobs'> 
+            ID: <span v-text='job.id'></span>,
+            <span v-text='job.status'></span>,
+            USER_ID: <span v-text='job.user_id'></span>,
+            <span v-text='job.priority'></span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 
 <script>
 var vm = new Vue({
   el: '#dashboard',    
+  data: {
+    jobs: [],
+    summary: ' summary'
+  },
+  created() {
+    this.fetchData();
+  },
+  methods: {
+    fetchData: function() {
+      var that = this;
+      axios.get('/jobs/')
+           .then(response => {
+             this.summary = response.data.length; 
+             response.data.map(function(job) { that.jobs.push(job)});
+           })
+           .catch(error => {console.log(error);})
+    },
+  }
 });
 </script>
 

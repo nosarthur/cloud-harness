@@ -19,7 +19,19 @@ class Job(object):
         r = requests.post(url, json=data)
         print(r.status_code)
 
+    def update(self, job_id, priority):
+        r = requests.put(url + str(job_id), json={'priority': priority})
+        print(r.status_code)
+
+    def start(self, job_id):
+        r = requests.put(url + str(job_id), json={'status': 2})
+        print(r.status_code)
+
+    def stop(self, job_id):
+        pass
+
 
 if __name__ == '__main__':
     j = Job()
     j.submit()
+    j.update(3, 1)
