@@ -20,6 +20,7 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'test'
     SQLALCHEMY_DATABASE_URI = 'postgresql://localhost/testing'
 
 

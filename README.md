@@ -4,19 +4,12 @@
 
 A wep application for AWS management.
 
-## components
+## features
 
-python driver, HTTP server, database, and AWS worker
-
-It has five components
-* an HTTP server that provides API access
-* a database to keep track of the users and jobs
-* python driver code
-* cloud workers (not included)
-* web storge (not included)
+* API access to jobs with JWT authentication
+* S3  
 
 ## script
-
 
 `python manager.py adduser`
 
