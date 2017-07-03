@@ -1,5 +1,7 @@
 # cloud-harness
 
+[![Build Status](https://travis-ci.org/nosarthur/cloud-harness.svg?branch=master)](https://travis-ci.org/nosarthur/cloud-harness)
+
 A wep application for AWS management.
 
 ## components
