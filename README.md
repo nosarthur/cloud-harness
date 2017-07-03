@@ -26,3 +26,7 @@ For database
 python manager.py db migrate
 python manager.py db upgrade
 ```
+
+For testing
+
+`python manager.py test`

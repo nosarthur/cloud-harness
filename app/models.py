@@ -1,5 +1,5 @@
 import datetime
-from jose import jwt
+from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
 from flask_login import UserMixin
@@ -17,7 +17,7 @@ class Base(db.Model):
 
 
 class User(UserMixin, Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     name = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
@@ -40,7 +40,7 @@ class User(UserMixin, Base):
         self.is_admin = is_admin
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r id=%d>' % (self.name, self.id)
 
     @classmethod
     def validate(cls, email, password):
@@ -58,8 +58,8 @@ class User(UserMixin, Base):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() \
-                       + datetime.timedelta(days=0, seconds=5),
+                'exp': datetime.datetime.utcnow()
+                + datetime.timedelta(days=0, minutes=30),
                 'iat': datetime.datetime.utcnow(),
                 'iss': self.id
                 }
@@ -71,11 +71,14 @@ class User(UserMixin, Base):
 
     @staticmethod
     def decode_token(token):
+        """
+        @return user_id
+        """
         try:
             payload = jwt.decode(token, current_app.config['SECRET_KEY'],
-                                 algorithm=['HS256'])
+                                 algorithms=['HS256'])
             return payload['iss']
-        except:
+        except JWTError:
             return 0
 
 
@@ -86,11 +89,13 @@ def load_user(user_id):
 
 @login_manager.request_loader
 def load_user_from_request(request):
-    token = request.headers.get('Authorization')
-    if token:
-        token = token.split(" ")[1]
-    else:
-        token = ""
+    """
+    @param request: flask request object
+
+    @return user instance or None
+    """
+    auth_str = request.headers.get('Authorization')
+    token = auth_str.split(" ")[1] if auth_str else ""
     if token:
         user_id = User.decode_token(token)
         user = User.query.get(int(user_id))
@@ -109,7 +114,7 @@ class Job(Base):
     priority = db.Column(db.SmallInteger, default=0)
     total_time = db.Column(db.Integer, default=0)
     result_url = db.Column(db.String(128))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __init__(self, user_id, priority=0):
         self.user_id = user_id
@@ -117,10 +122,6 @@ class Job(Base):
 
     def __repr__(self):
         return '<Job %d>' % self.id
-
-    def toJSON(self):
-        return {'id': self.id, 'user_id': self.user_id,
-                'status': self.status, 'priority': self.priority}
 
     def stop(self):
         pass
