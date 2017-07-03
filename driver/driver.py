@@ -5,17 +5,19 @@ import requests
 #      -H 'Content-Type: application/json' 127.0.0.1:5000/jobs/
 
 url = 'http://127.0.0.1:5000/jobs/'
-header = {'Content-Type': 'application/json', 'Accept': 'text/plain'}
+header = {'Content-Type': 'application/json', 'Accept': 'text/plain',
+          'Authorization': 'JWT asdfasdfa'}
 
 
 class Job(object):
     def __init__(self, priority=0):
         self.priority = priority
 # FIXME: calculate token from user
-        self.token = 'user2'
+        self.token = ''
 
     def submit(self):
         data = {'token': self.token, 'priority': self.priority}
+        #r = requests.post(url, json=data, headers=header)
         r = requests.post(url, json=data)
         print(r.status_code)
 
@@ -34,4 +36,4 @@ class Job(object):
 if __name__ == '__main__':
     j = Job()
     j.submit()
-    j.update(3, 1)
+    j.update(3, 2)

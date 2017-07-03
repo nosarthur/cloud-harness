@@ -1,4 +1,6 @@
-from ..app import create_app, db
+import pytest
+
+from app import create_app, db
 
 
 class TestAPI:

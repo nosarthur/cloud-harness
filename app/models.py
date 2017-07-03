@@ -1,6 +1,10 @@
+import datetime
+from jose import jwt
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask import current_app
 from flask_login import UserMixin
 
-from . import db
+from . import db, login_manager
 
 
 class Base(db.Model):
@@ -17,9 +21,17 @@ class User(UserMixin, Base):
 
     name = db.Column(db.String(64), nullable=False)
     email = db.Column(db.String(64), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    password_hash = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, nullable=False, default=False)
     jobs = db.relationship('Job', backref='owner', lazy='dynamic')
+
+    @property
+    def password(self):
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
 
     def __init__(self, name, email, password, is_admin=False):
         self.name = name
@@ -29,6 +41,62 @@ class User(UserMixin, Base):
 
     def __repr__(self):
         return '<User %r>' % self.name
+
+    @classmethod
+    def validate(cls, email, password):
+        user = cls.query.filter_by(email=email).first()
+        if user is None or not user.verify_password(password):
+            raise ValueError('fail login')
+        return user
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def encode_token(self):
+        """
+        Generate authentication token
+        """
+        try:
+            payload = {
+                'exp': datetime.datetime.utcnow() \
+                       + datetime.timedelta(days=0, seconds=5),
+                'iat': datetime.datetime.utcnow(),
+                'iss': self.id
+                }
+            return jwt.encode(payload,
+                              current_app.config['SECRET_KEY'],
+                              algorithm='HS256')
+        except:
+            raise
+
+    @staticmethod
+    def decode_token(token):
+        try:
+            payload = jwt.decode(token, current_app.config['SECRET_KEY'],
+                                 algorithm=['HS256'])
+            return payload['iss']
+        except:
+            return 0
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@login_manager.request_loader
+def load_user_from_request(request):
+    token = request.headers.get('Authorization')
+    if token:
+        token = token.split(" ")[1]
+    else:
+        token = ""
+    if token:
+        user_id = User.decode_token(token)
+        user = User.query.get(int(user_id))
+        if user:
+            return user
+    return None
 
 
 job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')

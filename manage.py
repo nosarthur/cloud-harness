@@ -16,14 +16,13 @@ manager.add_command('db', MigrateCommand)
 
 
 @manager.command
-def initDB(drop_first=False):
-    if drop_first:
-        db.drop_all()
+def initDB(drop=False):
+    drop and db.drop_all()
     db.create_all()
 
 
 @manager.command
-def adduser(email):
+def adduser(email, name='test'):
     '''Register a new user.'''
     from getpass import getpass
     password = getpass()
@@ -32,7 +31,7 @@ def adduser(email):
         import sys
         sys.exit('Error: passwords do not match.')
     db.create_all()
-    user = User('test', email, password)
+    user = User(name, email, password)
     db.session.add(user)
     db.session.commit()
     print('User {0} was registered successfully.'.format(user))

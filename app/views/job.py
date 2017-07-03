@@ -10,7 +10,7 @@ class JobAPI(Resource):
     Simple job
     """
     def get(self, job_id):
-        job = Job.query.filter_by(id=job_id).first()
+        job = Job.query.get(job_id)
         if job is None:
             # FIXME: abort 404?
             pass
