@@ -7,21 +7,29 @@ A wep application for AWS management.
 ## features
 
 * API access to jobs with JWT authentication
-* S3  
+* S3 storage
 
 ## script
 
+* Add user
+
 `python manager.py adduser`
 
-For database 
+* Initialize database 
 
 `python manager.py initDB`
+
+* Migrate database
 
 ```
 python manager.py db migrate
 python manager.py db upgrade
 ```
 
-For testing
+* Testing
 
 `python manager.py test`
+
+* Run local server 
+
+`python manage.py runserver`
