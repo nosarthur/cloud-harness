@@ -7,36 +7,40 @@ import requests
 url = 'http://127.0.0.1:5000/jobs/'
 auth_url = 'http://127.0.0.1:5000/auth/'
 header = {'Content-Type': 'application/json', 'Accept': 'text/plain',
-          'Authorization': 'JWT asdfasdfa'}
+          'Authorization': 'Bearer asdfasdfa'}
 
 
 class Job(object):
     def __init__(self, priority=0):
         self.priority = priority
         self.token = ''
+        self.header = header
 
     def login(self, email, password):
         data = {'email': email, 'password': password}
         r = requests.post(auth_url, json=data)
         if r.status_code == 200:
             self.token = r.json()['token']
+            self.header['Authorization'] = 'Bearer ' + self.token
             print self.token
         else:
             print 'Login failed.'
 
     def submit(self):
         data = {'token': self.token, 'priority': self.priority}
-        r = requests.post(url, json=data)
+        r = requests.post(url, json=data, header=self.header)
         if r.status_code != 201:
             print 'Submission failed.'
 
     def update(self, job_id, priority):
-        r = requests.put(url + str(job_id), json={'priority': priority})
+        r = requests.put(url + str(job_id), json={'priority': priority},
+                         header=self.header)
         if r.status_code != 204:
             print 'Update failed.'
 
     def start(self, job_id):
-        r = requests.put(url + str(job_id), json={'status': 2})
+        r = requests.put(url + str(job_id), json={'status': 2},
+                         header=self.header)
         print(r.status_code)
 
     def stop(self, job_id):

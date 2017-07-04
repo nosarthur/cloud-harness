@@ -61,7 +61,8 @@ class User(UserMixin, Base):
                 'exp': datetime.datetime.utcnow()
                 + datetime.timedelta(days=0, minutes=30),
                 'iat': datetime.datetime.utcnow(),
-                'iss': self.id
+                'iss': 'cloud-harness',
+                'sub': str(self.id)
                 }
             return jwt.encode(payload,
                               current_app.config['SECRET_KEY'],
@@ -77,7 +78,7 @@ class User(UserMixin, Base):
         try:
             payload = jwt.decode(token, current_app.config['SECRET_KEY'],
                                  algorithms=['HS256'])
-            return payload['iss']
+            return int(payload['sub'])
         except JWTError:
             return 0
 
@@ -87,6 +88,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+# maybe deprecate this func
 @login_manager.request_loader
 def load_user_from_request(request):
     """
@@ -95,7 +97,7 @@ def load_user_from_request(request):
     @return user instance or None
     """
     auth_str = request.headers.get('Authorization')
-    token = auth_str.split(" ")[1] if auth_str else ""
+    token = auth_str.split(' ')[1] if auth_str else ''
     if token:
         user_id = User.decode_token(token)
         user = User.query.get(int(user_id))

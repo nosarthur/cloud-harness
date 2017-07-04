@@ -24,7 +24,12 @@ class TestAPI:
         self.app_context.pop()
 
     def test_get(self):
-        with self.app.test_request_context('/jobs/', method='GET'):
+# add token
+        u = User.query.get(1)
+        assert u
+        token = u.encode_token()
+        headers = [('Authorization', 'Bearer ' + token)]
+        with self.app.test_request_context('/api/jobs/', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
             jobs = json.loads(res.data)
@@ -39,9 +44,10 @@ class TestAPI:
             assert j1['user_id'] == 1
             assert j2['user_id'] == 2
 
-    def test_token_error(self):
-        with self.app.test_request_context('/jobs/'):
-            pass
+    def test_no_token(self):
+        with self.app.test_request_context('/api/jobs/', method='GET'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 401
 
     def test_token_approve(self):
         pass

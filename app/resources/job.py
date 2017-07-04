@@ -1,7 +1,6 @@
 from functools import wraps
-from flask import flash, abort, g
+from flask import abort, g, request
 from flask_restful import Resource, reqparse, fields, marshal_with
-from flask_login import login_required
 
 from ..models import Job, User
 from .. import db
@@ -14,15 +13,29 @@ job_fields = {
     'status': fields.String
 }
 
+
 def get_job(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        job = Job.query.get(job_id)
+        job = Job.query.get(kwargs.get('job_id'))
         if job is None:
-            flash('Job does not exist.')
             abort(404)
         g.job = job
         return f(*args, **kwargs)
+    return wrapper
+
+
+def authenticate(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        auth_str = request.headers.get('Authorization')
+        token = auth_str.split(' ')[1] if auth_str else ''
+        if token:
+            g.user_id = User.decode_token(token)
+            user = User.query.get(int(g.user_id))
+            if user:
+                return f(*args, **kwargs)
+        abort(401)
     return wrapper
 
 
@@ -30,7 +43,7 @@ class JobAPI(Resource):
     """
     Read, update and delete for single job.
     """
-    decorators = [get_job]
+    decorators = [authenticate, get_job]
 
     @marshal_with(job_fields)
     def get(self, job_id):
@@ -62,6 +75,8 @@ class JobListAPI(Resource):
     """
     all jobs
     """
+    decorators = [authenticate]
+
     @marshal_with(job_fields)
     def get(self):
         """
@@ -78,14 +93,9 @@ class JobListAPI(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('priority', type=int, required=True,
                             location='json')
-        parser.add_argument('token', required=True, location='json')
         args = parser.parse_args(strict=True)
 
-# FIXME: use authorization header instead of token
-        user_id = User.decode_token(args['token'])
-        if user_id == 0:
-            return args, 401
-        job = Job(user_id, args['priority'])
+        job = Job(g.user_id, args['priority'])
         db.session.add(job)
         db.session.commit()
         return job, 201

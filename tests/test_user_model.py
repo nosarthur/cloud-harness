@@ -44,7 +44,7 @@ class TestUserModel:
         db.session.add(u)
         db.session.commit()
         token = u.encode_token()
-        headers = [('Authorization', 'JWT ' + token)]
+        headers = [('Authorization', 'Bearer ' + token)]
         with self.app.test_request_context('/', headers=headers):
             assert load_user_from_request(flask.request) == u
 
