@@ -11,24 +11,22 @@ class TestAPI:
         self.app_context.push()
         db.create_all()
 
-        u1 = User('u1', 'a@a.com', 'aaa')
+        u1 = User('u1', 'a@a.com', 'aaa', True) # admin
         u2 = User('u2', 'b@a.com', 'aaa')
         j1 = Job(1)
         j2 = Job(2, 3)
         db.session.add_all([u1, j1, j2, u2])
         db.session.commit()
+        self.admin_token = u1.encode_token()
+        self.token = u2.encode_token()
 
     def teardown(self):
         db.session.remove()
         db.drop_all()
         self.app_context.pop()
 
-    def test_get(self):
-# add token
-        u = User.query.get(1)
-        assert u
-        token = u.encode_token()
-        headers = [('Authorization', 'Bearer ' + token)]
+    def test_get_all(self):
+        headers = [('Authorization', 'Bearer ' + self.admin_token)]
         with self.app.test_request_context('/api/jobs/', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
@@ -45,9 +43,16 @@ class TestAPI:
             assert j2['user_id'] == 2
 
     def test_no_token(self):
-        with self.app.test_request_context('/api/jobs/', method='GET'):
+        with self.app.test_request_context('/api/jobs/'):
             res = self.app.full_dispatch_request()
             assert res.status_code == 401
 
-    def test_token_approve(self):
-        pass
+    def test_delete(self):
+        headers = [('Authorization', 'Bearer ' + self.admin_token)]
+        with self.app.test_request_context('/api/jobs/' + '1',
+                                           headers=headers,
+                                           method='DELETE'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 200
+            j = Job.query.get(1)
+            assert not j        

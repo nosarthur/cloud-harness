@@ -39,9 +39,11 @@ var vm = new Vue({
   methods: {
     fetchData: function() {
       var that = this;
-      axios.get('/jobs/')
+      var token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjbG91ZC1oYXJuZXNzIiwiaWF0IjoxNDk5Mzk4ODU0LCJzdWIiOiIxIiwiZXhwIjoxNDk5NDAwNjU0fQ.RPOYTb0DS7S7UWXTQYpLwkkr2Lbe3hH4eHtzJC4ksbs"
+      axios.get('/api/jobs/', {headers: {'Authorization': "Bearer " + token}})
            .then(response => {
              this.summary = response.data.length; 
+console.log(response.data);
              response.data.map(function(job) { that.jobs.push(job)});
            })
            .catch(error => {console.log(error);})

@@ -68,7 +68,9 @@ class User(UserMixin, Base):
                               current_app.config['SECRET_KEY'],
                               algorithm='HS256')
         except:
-            raise
+            # FIXME: something needs to be done
+            # raise
+            return
 
     @staticmethod
     def decode_token(token):
@@ -80,6 +82,7 @@ class User(UserMixin, Base):
                                  algorithms=['HS256'])
             return int(payload['sub'])
         except JWTError:
+            # raise
             return 0
 
 

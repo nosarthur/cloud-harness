@@ -7,7 +7,7 @@ A wep application for AWS management.
 ## features
 
 * API access to jobs with JWT authentication
-* S3 storage
+* create/end AWS EC2 CPU instances
 
 ## script
 

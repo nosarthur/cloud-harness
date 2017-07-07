@@ -12,7 +12,6 @@ login_manager.login_view = 'auth.login'
 from config import config
 from .views.home import home
 from .views.auth import auth
-from .views.jobs import jobs
 from .resources.job import JobAPI, JobListAPI
 
 
@@ -31,6 +30,5 @@ def create_app(config_name):
 
     app.register_blueprint(home)
     app.register_blueprint(auth, url_prefix='/auth')
-    app.register_blueprint(jobs, url_prefix='/job')
 
     return app
