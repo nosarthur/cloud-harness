@@ -67,7 +67,7 @@ class JobAPI(Resource):
     def delete(self, job_id):
         job = g.job
         db.session.delete(job)
-        db.commit()
+        db.session.commit()
         return 'Job deleted.', 204
 
 

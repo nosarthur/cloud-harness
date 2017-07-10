@@ -1,6 +1,5 @@
 from flask import (Blueprint, flash, url_for, redirect, session,
                    request, render_template, jsonify)
-from flask_login import login_user, logout_user, login_required
 from flask_restful import reqparse
 
 from ..models import User
@@ -43,8 +42,6 @@ def login():
 
 
 @auth.route('/logout')
-@login_required
 def logout():
-    logout_user()
     flash('You have logged out.')
     return redirect(url_for('home.index'))

@@ -11,7 +11,7 @@ class TestAPI:
         self.app_context.push()
         db.create_all()
 
-        u1 = User('u1', 'a@a.com', 'aaa', True) # admin
+        u1 = User('u1', 'a@a.com', 'aaa', True)  # admin
         u2 = User('u2', 'b@a.com', 'aaa')
         j1 = Job(1)
         j2 = Job(2, 3)
@@ -53,6 +53,6 @@ class TestAPI:
                                            headers=headers,
                                            method='DELETE'):
             res = self.app.full_dispatch_request()
-            assert res.status_code == 200
+            assert res.status_code == 204
             j = Job.query.get(1)
-            assert not j        
+            assert not j

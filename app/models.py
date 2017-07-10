@@ -2,9 +2,8 @@ import datetime
 from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
-from flask_login import UserMixin
 
-from . import db, login_manager
+from . import db
 
 
 class Base(db.Model):
@@ -16,7 +15,7 @@ class Base(db.Model):
                               onupdate=db.func.current_timestamp())
 
 
-class User(UserMixin, Base):
+class User(Base):
     __tablename__ = 'users'
 
     name = db.Column(db.String(64), nullable=False)
@@ -84,29 +83,6 @@ class User(UserMixin, Base):
         except JWTError:
             # raise
             return 0
-
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-# maybe deprecate this func
-@login_manager.request_loader
-def load_user_from_request(request):
-    """
-    @param request: flask request object
-
-    @return user instance or None
-    """
-    auth_str = request.headers.get('Authorization')
-    token = auth_str.split(' ')[1] if auth_str else ''
-    if token:
-        user_id = User.decode_token(token)
-        user = User.query.get(int(user_id))
-        if user:
-            return user
-    return None
 
 
 job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')

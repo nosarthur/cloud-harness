@@ -1,0 +1,84 @@
+
+<script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
+
+<div id='app'>
+  <div>
+    <div v-if='signedIn'>
+      <span  v-text='email'> </span>
+      <button @click='onLogout'>Logout</button>
+    </div>
+    <div v-else>
+      <form @submit.prevent='onLogin'>
+        <input v-model='email' placeholder='email' type='email'>
+        <input v-model='password' placeholder='password' type='password'>
+        <input value='Login' type='submit'>
+      </form>
+    </div>
+  </div>
+  <hr>
+
+  <div>
+    <div>jobs: </div>
+
+      <div class='col-md-12' v-if='signedIn'>
+        <ul>
+          <li v-for='job in jobs'> 
+            ID: <span v-text='job.id'></span>,
+            <span v-text='job.status'></span>,
+            USER_ID: <span v-text='job.user_id'></span>,
+            <span v-text='job.priority'></span>
+          </li>
+        </ul>
+      </div>
+  </div>
+
+</div>
+
+<script>
+var vm = new Vue({
+  el: '#app',
+  data: {
+    email: '',
+    password: '',
+    token: '',
+    signedIn: false,
+    jobs: [],
+    summary: ' summary',
+  },
+  methods: {
+    onLogin: function() {
+      console.log(this.email);
+      axios.post('/auth/',
+                 {email: this.email, password: this.password},)
+                 //{headers: { 'accept': 'application/json', }},)
+           .then(response => {
+             this.token = response.data.token;
+             console.log(this.token);
+             this.signedIn = true;
+             this.fetchData();
+           })
+           .catch(error => {console.log(error);})
+    },
+    onLogout: function(){
+      axios.get('/auth/logout',
+                 {headers: {'Authorization': "Bearer " + this.token}})
+           .then(response => {
+             this.signedIn = false;
+             this.token = '';
+             this.password = '';
+           })
+           .catch(error => {console.log(error);})
+    },
+    fetchData: function() {
+      axios.get('/api/jobs/',
+                {headers: {'Authorization': "Bearer " + this.token}})
+           .then(response => {
+             this.summary = response.data.length; 
+             this.jobs = response.data; 
+           })
+           .catch(error => {console.log(error);})
+    },
+  }
+});
+</script>
