@@ -48,9 +48,11 @@
         </div>
       </div>
 
-      <div>
-        <div>jobs: </div>
+      <div v-for='(value, key) in summary'>
+        {% raw %} {{key}} : {{value}} {% endraw %} 
+      </div>
 
+      <div>
           <div class='col-md-12' v-if='signedIn'>
             <ul>
               <li v-for='job in jobs'> 

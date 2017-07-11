@@ -6,7 +6,7 @@ var vm = new Vue({
     token: '',
     signedIn: false,
     jobs: [],
-    summary: ' summary',
+    summary: '',
   },
   created() {
     this.checkLogin();
@@ -15,8 +15,9 @@ var vm = new Vue({
     checkLogin: function() {
       this.token = localStorage.token;
       this.email = localStorage.email;
+      this.fetchSummary();
       if (this.token){
-        this.fetchData();
+        this.fetchJobs();
         if (this.jobs){
           this.signedIn = true;
         }
@@ -33,7 +34,7 @@ var vm = new Vue({
                localStorage.email = this.email;
                console.log(this.token);
                this.signedIn = true;
-               this.fetchData();
+               this.fetchJobs();
              }
            })
            .catch(error => {console.log(error);})
@@ -49,12 +50,18 @@ var vm = new Vue({
            })
            .catch(error => {console.log(error);})
     },
-    fetchData: function() {
+    fetchJobs: function() {
       axios.get('/api/jobs/',
                 {headers: {'Authorization': "Bearer " + this.token}})
            .then(response => {
-             this.summary = response.data.length; 
              this.jobs = response.data; 
+           })
+           .catch(error => {console.log(error);})
+    },
+    fetchSummary: function() {
+      axios.get('/api/jobs/summary/')
+           .then(response => {
+             this.summary = response.data; 
            })
            .catch(error => {console.log(error);})
     },

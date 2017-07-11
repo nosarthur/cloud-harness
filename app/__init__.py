@@ -9,7 +9,7 @@ db = SQLAlchemy()
 from config import config
 from .views.home import home
 from .views.auth import auth
-from .resources.job import JobAPI, JobListAPI
+from .resources.job import JobAPI, JobListAPI, JobSummaryAPI
 
 
 def create_app(config_name):
@@ -23,6 +23,7 @@ def create_app(config_name):
     api = Api(app)
     api.add_resource(JobAPI, '/api/jobs/<int:job_id>')
     api.add_resource(JobListAPI, '/api/jobs/')
+    api.add_resource(JobSummaryAPI, '/api/jobs/summary/')
 
     app.register_blueprint(home)
     app.register_blueprint(auth, url_prefix='/auth')
