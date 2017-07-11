@@ -8,6 +8,15 @@
 		href='{{ url_for('static', filename='css/style.css') }}'>
 {% endblock %}
 
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{{super()}}
+{% endblock %}
+
+
 {% block head %}
 {{ super() }}
 <link rel='shortcut icon' href='{{ url_for('static', filename='img/favicon.ico') }}'>
