@@ -11,9 +11,9 @@ class Base(db.Model):
     __abstract__ = True
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+    date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+    date_modified = db.Column(db.DateTime, default=datetime.datetime.utcnow(),
+                              onupdate=datetime.datetime.utcnow())
 
 
 class Worker(Base):
@@ -29,11 +29,16 @@ class Worker(Base):
         self.price = price
 
     def check_health(self):
-        # current_timestamp - date_modified > some time
-        if 0:
-            self.data_finished = db.func.current_timestamp()
+        # FIXME: make the return values more meaningful for debugging
+        if not self.job_id:
+            return False
+        if (datetime.datetime.utcnow() - self.date_modified >
+                datetime.timedelta(minutes=15)):
+            self.data_finished = datetime.datetime.utcnow()
             job = Job.query.get(self.job_id)
             job.status = 'FAILED'
+            return False
+        return True
 
 
 class User(Base):
