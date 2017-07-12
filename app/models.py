@@ -1,6 +1,7 @@
 import datetime
 from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.dialects import postgresql
 from flask import current_app
 
 from . import db
@@ -13,6 +14,26 @@ class Base(db.Model):
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
+
+
+class Worker(Base):
+    __tablename__ = 'workers'
+
+    ip = db.Column(postgresql.INET, nullable=False)
+    price = db.Column(db.Numeric, nullable=False)
+    job_id = db.Column(db.Integer)
+    date_finished = db.Column(db.DateTime)
+
+    def __init__(self, ip, price):
+        self.ip = ip
+        self.price = price
+
+    def check_health(self):
+        # current_timestamp - date_modified > some time
+        if 0:
+            self.data_finished = db.func.current_timestamp()
+            job = Job.query.get(self.job_id)
+            job.status = 'FAILED'
 
 
 class User(Base):
@@ -89,7 +110,7 @@ job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')
 
 
 class Job(Base):
-    __tablename__ = 'job'
+    __tablename__ = 'jobs'
 
     status = db.Column(db.Enum(*job_status, name='status'), default='WAITING')
     priority = db.Column(db.SmallInteger, default=0)

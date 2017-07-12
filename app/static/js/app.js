@@ -25,6 +25,10 @@ var vm = new Vue({
     },
     onLogin: function() {
       console.log(this.email);
+      // form validation
+      if (! this.password){
+        return;
+      }
       axios.post('/auth/login',
                  {email: this.email, password: this.password},)
            .then(response => {
