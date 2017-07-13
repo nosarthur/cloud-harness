@@ -10,11 +10,11 @@ headers = {'Content-Type': 'application/json', 'Accept': 'text/plain',
            'Authorization': 'Bearer asdfasdfa'}
 
 
-class Job(object):
+class JobControl(object):
     def __init__(self, priority=0):
         self.priority = priority
         self.token = ''
-        self.headers = headers
+        self.headers = ''
 
     def login(self, email, password):
         data = {'email': email, 'password': password}
@@ -48,8 +48,8 @@ class Job(object):
 
 
 if __name__ == '__main__':
-    j = Job()
-    j.login('a@a.com', 'aaa')
-    # j.login('test@test.com', 'aaa')
-    j.submit()
-    j.update(3, 3)
+    jc = JobControl()
+    jc.login('a@a.com', 'aaa')
+    # jc.login('test@test.com', 'aaa')
+    jc.submit()
+    jc.update(3, 3)

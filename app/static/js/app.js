@@ -6,7 +6,7 @@ var vm = new Vue({
     token: '',
     signedIn: false,
     jobs: [],
-    summary: '',
+    summary: null,
   },
   created() {
     this.checkLogin();
@@ -63,7 +63,7 @@ var vm = new Vue({
            .catch(error => {console.log(error);})
     },
     fetchSummary: function() {
-      axios.get('/api/jobs/summary/')
+      axios.get('/api/summary')
            .then(response => {
              this.summary = response.data; 
            })

@@ -49,7 +49,9 @@
       </div>
 
       <div v-for='(value, key) in summary'>
-        {% raw %} {{key}} : {{value}} {% endraw %} 
+        <div v-for='(count, status) in value'>
+          {% raw %} {{key}} : {{status}} : {{count}} {% endraw %} 
+        </div>
       </div>
 
       <div>

@@ -71,22 +71,6 @@ class JobAPI(Resource):
         return 'Job deleted.', 204
 
 
-class JobSummaryAPI(Resource):
-    """
-    Summaries without authentication.
-    """
-    def get(self):
-        waiting = Job.query.filter_by(status='WAITING').count()
-        running = Job.query.filter_by(status='RUNNING').count()
-        finished = Job.query.filter_by(status='FINISHED').count()
-        failed = Job.query.filter_by(status='FAILED').count()
-        return {'waiting': waiting, 
-                'running': running,
-                'finished': finished,
-                'failed': failed,
-                }
-
-
 class JobListAPI(Resource):
     """
     all jobs

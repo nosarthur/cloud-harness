@@ -25,14 +25,6 @@ class TestAPI:
         db.drop_all()
         self.app_context.pop()
 
-    def test_get_summary(self):
-        with self.app.test_request_context('/api/jobs/summary/'):
-            res = self.app.full_dispatch_request()
-            assert res.status_code == 200
-            summary = json.loads(res.data)
-            assert summary == {u'running': 0, u'failed': 0, u'waiting': 2,
-                               u'finished': 0}
-
     def test_get_all(self):
         headers = [('Authorization', 'Bearer ' + self.admin_token)]
         with self.app.test_request_context('/api/jobs/', headers=headers):
