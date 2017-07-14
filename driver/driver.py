@@ -7,14 +7,14 @@ import requests
 url = 'http://127.0.0.1:5000/api/jobs/'
 login_url = 'http://127.0.0.1:5000/auth/login'
 headers = {'Content-Type': 'application/json', 'Accept': 'text/plain',
-           'Authorization': 'Bearer asdfasdfa'}
+           'Authorization': ''}
 
 
 class JobControl(object):
     def __init__(self, priority=0):
         self.priority = priority
         self.token = ''
-        self.headers = ''
+        self.headers = headers
 
     def login(self, email, password):
         data = {'email': email, 'password': password}

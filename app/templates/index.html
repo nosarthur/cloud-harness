@@ -37,7 +37,7 @@
             </ul>
             <ul class='nav navbar-nav' v-else>
               <li> <a>
-                <form @submit='onLogin'>
+                <form @submit='onLogin' action='/'>
                   <input v-model='email' placeholder='email' type='email'>
                   <input v-model='password' placeholder='password' type='password'>
                   <input value='Log in' type='submit'>

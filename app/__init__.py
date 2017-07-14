@@ -11,6 +11,7 @@ from .views.home import home
 from .views.auth import auth
 from .resources.job import JobAPI, JobListAPI
 from .resources.summary import SummaryAPI
+from .resources.worker import WorkerAPI
 
 
 def create_app(config_name):
@@ -25,6 +26,7 @@ def create_app(config_name):
     api.add_resource(JobAPI, '/api/jobs/<int:job_id>')
     api.add_resource(JobListAPI, '/api/jobs/')
     api.add_resource(SummaryAPI, '/api/summary')
+    api.add_resource(WorkerAPI, '/api/workers/new')
 
     app.register_blueprint(home)
     app.register_blueprint(auth, url_prefix='/auth')

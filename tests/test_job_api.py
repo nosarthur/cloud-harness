@@ -42,14 +42,50 @@ class TestAPI:
             assert j1['user_id'] == 1
             assert j2['user_id'] == 2
 
+    def test_get_one(self):
+        headers = [('Authorization', 'Bearer ' + self.admin_token)]
+        with self.app.test_request_context('/api/jobs/1', headers=headers):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 200
+            j = json.loads(res.data)
+            assert j['id'] == 1
+            assert j['user_id'] == 1
+
     def test_no_token(self):
         with self.app.test_request_context('/api/jobs/'):
             res = self.app.full_dispatch_request()
             assert res.status_code == 401
 
+    def test_post(self):
+        headers = [('Authorization', 'Bearer ' + self.token),
+                   ('Content-Type', 'application/json')]
+        with self.app.test_request_context('/api/jobs/',
+                                           headers=headers,
+                                           data=json.dumps({'priority': 2}),
+                                           method='POST'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 201
+            j = json.loads(res.data)
+            assert j['id'] == 3
+            assert j['user_id'] == 2
+            assert j['priority'] == 2
+
+    def test_put(self):
+        headers = [('Authorization', 'Bearer ' + self.token),
+                   ('Content-Type', 'application/json')]
+        with self.app.test_request_context('/api/jobs/1',
+                                           headers=headers,
+                                           data=json.dumps({'priority': 3}),
+                                           method='PUT'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 204
+            j = json.loads(res.data)
+            assert j['id'] == 1
+            assert j['priority'] == 3
+
     def test_delete(self):
         headers = [('Authorization', 'Bearer ' + self.admin_token)]
-        with self.app.test_request_context('/api/jobs/' + '1',
+        with self.app.test_request_context('/api/jobs/1',
                                            headers=headers,
                                            method='DELETE'):
             res = self.app.full_dispatch_request()

@@ -1,6 +1,6 @@
 from functools import wraps
-from flask import abort, g, request
-from flask_restful import Resource, reqparse, fields, marshal_with
+from flask import g, request
+from flask_restful import Resource, reqparse, fields, marshal_with, abort
 
 from ..models import Job, User
 from .. import db
@@ -15,17 +15,23 @@ job_fields = {
 
 
 def get_job(f):
+    """
+    If job exists in the database, stored it in g
+    """
     @wraps(f)
     def wrapper(*args, **kwargs):
         job = Job.query.get(kwargs.get('job_id'))
         if job is None:
-            abort(404)
+            abort(404, description='Job does not exist.')
         g.job = job
         return f(*args, **kwargs)
     return wrapper
 
 
 def authenticate(f):
+    """
+    If authenticated, user_id is stored in g
+    """
     @wraps(f)
     def wrapper(*args, **kwargs):
         auth_str = request.headers.get('Authorization')
@@ -35,7 +41,7 @@ def authenticate(f):
             user = User.query.get(int(g.user_id))
             if user:
                 return f(*args, **kwargs)
-        abort(401)
+        abort(401, description='Authentication failed.')
     return wrapper
 
 
@@ -95,7 +101,7 @@ class JobListAPI(Resource):
                             location='json')
         args = parser.parse_args(strict=True)
 
-        job = Job(g.user_id, args['priority'])
-        db.session.add(job)
+        j = Job(g.user_id, args['priority'])
+        db.session.add(j)
         db.session.commit()
-        return job, 201
+        return j, 201

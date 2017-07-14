@@ -19,7 +19,8 @@ def ajax_login():
         user = User.validate(args['email'], args['password'])
     except ValueError as e:
         flash('Wrong email password combination.')
-        return redirect(url_for('home.index'))
+        # return redirect(url_for('home.index'))
+        return jsonify({})
     return jsonify({'token': user.encode_token()})
 
 
