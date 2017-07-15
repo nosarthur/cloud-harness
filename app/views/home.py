@@ -7,7 +7,14 @@ home = Blueprint('home', __name__)
 def index():
     return render_template('index.html')
 
+def bad_request(message):
+    response = jsonify({'message': message})
+    response.status_code = 400
+    return response
 
-@home.app_errorhandler(404)
-def not_found_error(error):
-    return render_template('404.html'), 404
+class BadRequestError(ValueError):
+    pass
+
+@home.app_errorhandler(BadRequestError)
+def bad_request_handler(error):
+    return bad_request(error.message)
