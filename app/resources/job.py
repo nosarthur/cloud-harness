@@ -1,9 +1,9 @@
-from functools import wraps
-from flask import g, request
-from flask_restful import Resource, reqparse, fields, marshal_with, abort
+from flask import g
+from flask_restful import Resource, reqparse, fields, marshal_with
 
-from ..models import Job, User
+from ..models import Job
 from .. import db
+from utils import authenticate, get_job
 
 
 job_fields = {
@@ -12,37 +12,6 @@ job_fields = {
     'priority': fields.Integer,
     'status': fields.String
 }
-
-
-def get_job(f):
-    """
-    If job exists in the database, stored it in g
-    """
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        job = Job.query.get(kwargs.get('job_id'))
-        if job is None:
-            abort(404, description='Job does not exist.')
-        g.job = job
-        return f(*args, **kwargs)
-    return wrapper
-
-
-def authenticate(f):
-    """
-    If authenticated, user_id is stored in g
-    """
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        auth_str = request.headers.get('Authorization')
-        token = auth_str.split(' ')[1] if auth_str else ''
-        if token:
-            g.user_id = User.decode_token(token)
-            user = User.query.get(int(g.user_id))
-            if user:
-                return f(*args, **kwargs)
-        abort(401, description='Authentication failed.')
-    return wrapper
 
 
 class JobAPI(Resource):

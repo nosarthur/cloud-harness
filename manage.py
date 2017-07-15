@@ -40,7 +40,7 @@ def adduser(email, name='test'):
 @manager.command
 def test():
     from subprocess import call
-    call(['pytest', '-v', '-s'])
+    call(['pytest', '-vs', '--cov=./app/'])
 
 
 if __name__ == '__main__':

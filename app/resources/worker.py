@@ -1,6 +1,9 @@
-from flask_restful import Resource, reqparse, marshal_with, fields
+from flask_restful import Resource, reqparse, marshal_with, fields, abort
 
 from ..models import Worker
+from .. import db
+from utils import authenticate
+
 
 worker_fields = {
     'id': fields.Integer,
@@ -8,7 +11,10 @@ worker_fields = {
     'ip': fields.String,
 }
 
+
 class WorkerAPI(Resource):
+
+    decorators = [authenticate]
 
     @marshal_with(worker_fields)
     def post(self):

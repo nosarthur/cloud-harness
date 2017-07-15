@@ -1,14 +1,15 @@
-from flask import Blueprint, flash, url_for, redirect, jsonify
+from flask import Blueprint, jsonify
 from flask_restful import reqparse
 
 from ..models import User
+from home import bad_request
 
 
 auth = Blueprint('auth', __name__)
 
 
 @auth.route('/login', methods=['POST'])
-def ajax_login():
+def login():
     parser = reqparse.RequestParser()
     parser.add_argument('email', type=str, required=True,
                         location='json')
@@ -18,13 +19,10 @@ def ajax_login():
     try:
         user = User.validate(args['email'], args['password'])
     except ValueError as e:
-        flash('Wrong email password combination.')
-        # return redirect(url_for('home.index'))
-        return jsonify({})
+        return bad_request('Wrong email password combination.')
     return jsonify({'token': user.encode_token()})
 
 
 @auth.route('/logout')
 def logout():
-    flash('You have logged out.')
-    return redirect(url_for('home.index'))
+    return jsonify({'msg': 'You have logged out.'})

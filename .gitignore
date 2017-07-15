@@ -5,3 +5,4 @@ venv/
 instance/
 tests/.cache/
 .cache/
+.coverage

@@ -54,7 +54,7 @@ class TestAPI:
     def test_no_token(self):
         with self.app.test_request_context('/api/jobs/'):
             res = self.app.full_dispatch_request()
-            assert res.status_code == 401
+            assert res.status_code == 400
 
     def test_post(self):
         headers = [('Authorization', 'Bearer ' + self.token),

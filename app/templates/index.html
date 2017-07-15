@@ -16,8 +16,8 @@
 
 {% block content %}
 <div class='container'>
-  {% block page_content %}
     <div id='app'>
+
       <div class='navbar navbar-default' role='navigation'>
         <div class='container'>
           <div class='navbar-header'>
@@ -37,7 +37,7 @@
             </ul>
             <ul class='nav navbar-nav' v-else>
               <li> <a>
-                <form @submit='onLogin' action='/'>
+                <form @submit.prevent='onLogin' action='/'>
                   <input v-model='email' placeholder='email' type='email'>
                   <input v-model='password' placeholder='password' type='password'>
                   <input value='Log in' type='submit'>
@@ -67,15 +67,14 @@
           </div>
       </div>
 
+      <div>
+      <template v-if='msg'>
+      <div class='alert alert-warning' >
+        <button type='button' class='close' data-dismiss='alert'> &times; </button>
+        <span v-text='msg'> </span>
+      </div>
+      </template>
+      </div>
     </div>
-
-  {% endblock %}
-
-    {% for message in get_flashed_messages() %}
-    <div class='alert alert-warning'>
-      <button type='button' class='close' data-dismiss='alert'> &times; </button>
-      {{ message }}
-    </div>
-    {% endfor %}
 </div>
 {% endblock %}
