@@ -34,7 +34,7 @@ class Worker(Base):
             return False
         if (datetime.datetime.utcnow() - self.date_modified >
                 datetime.timedelta(minutes=15)):
-            self.data_finished = datetime.datetime.utcnow()
+            self.date_finished = datetime.datetime.utcnow()
             job = Job.query.get(self.job_id)
             job.status = 'FAILED'
             return False

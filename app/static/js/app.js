@@ -25,7 +25,6 @@ var vm = new Vue({
       }
     },
     onLogin: function() {
-      console.log(this.email);
       // form validation
       if (!this.password){
         return;
@@ -77,7 +76,6 @@ var vm = new Vue({
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         this.msg = e.response.data.message;
-        console.log(this.msg);
       } else if (e.request){
         // The request was made but no response was received
         // `error.request` is an instance of XMLHttpRequest in the browser

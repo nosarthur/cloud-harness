@@ -25,4 +25,4 @@ def login():
 
 @auth.route('/logout')
 def logout():
-    return jsonify({'msg': 'You have logged out.'})
+    return ''

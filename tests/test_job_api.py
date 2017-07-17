@@ -56,6 +56,13 @@ class TestAPI:
             res = self.app.full_dispatch_request()
             assert res.status_code == 400
 
+    def test_wrong_token(self):
+        headers = [('Authorization', 'Bearer ' + 'wrong token'),
+                   ('Content-Type', 'application/json')]
+        with self.app.test_request_context('/api/jobs/', headers=headers):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 400
+
     def test_post(self):
         headers = [('Authorization', 'Bearer ' + self.token),
                    ('Content-Type', 'application/json')]

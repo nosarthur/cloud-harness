@@ -27,7 +27,7 @@ def create_app(config_name):
     api.add_resource(JobListAPI, '/api/jobs/')
     api.add_resource(SummaryAPI, '/api/summary')
     api.add_resource(WorkerAPI, '/api/workers/new', endpoint='/workers/new')
-    api.add_resource(WorkerAPI, '/api/workers/', endpoint='/workers/')
+    api.add_resource(WorkerAPI, '/api/workers/<int:worker_id>', endpoint='/workers/')
 
     app.register_blueprint(home)
     app.register_blueprint(auth, url_prefix='/auth')
