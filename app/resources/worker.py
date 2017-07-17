@@ -11,7 +11,7 @@ from utils import authenticate
 worker_fields = {
     'id': fields.Integer,
     'job_id': fields.Integer,
-    'ip': fields.String,
+    'instance_id': fields.String,
 }
 
 
@@ -21,7 +21,7 @@ class WorkerAPI(Resource):
 
     # /api/workers/new
     @marshal_with(worker_fields)
-    def put(self):
+    def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('price', type=float, location='json')
         parser.add_argument('job_id', type=int, location='json')
@@ -35,8 +35,8 @@ class WorkerAPI(Resource):
         n_workers = args['n_workers']
         if job_id:
             pass
-        if n_workers > 5:
-            raise BadRequestError('Cannot ask for more than 4 workers')
+        if n_workers > 5 or n_workers < 1:
+            raise BadRequestError('Only 1 to 5 workers are allowed.')
 
         # get aws instance: 64bit ubuntu
         s = boto3.Session(profile_name='dev')

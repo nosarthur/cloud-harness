@@ -7,7 +7,7 @@ import requests
 jobs_url = 'http://127.0.0.1:5000/api/jobs/'
 workers_url = 'http://127.0.0.1:5000/api/workers/'
 login_url = 'http://127.0.0.1:5000/auth/login'
-headers = {'Content-Type': 'application/json', 'Accept': 'text/plain',
+headers = {'Content-Type': 'application/json', 'Accept': 'application/json',
            'Authorization': ''}
 
 
@@ -46,17 +46,27 @@ class JobControl(object):
             data['job_id'] = job_id
         if price:
             data['price'] = price
-        r = requests.put(workers_url + 'new/', json=data, headers=self.headers)
+        assert n_workers > 0 and n_workers < 6
+        data['n_workers'] = n_workers
+        r = requests.get(workers_url+'new', json=data, headers=self.headers)
         print(r.status_code)
+        print(r.json())
 
-    def stop(self, job_id):
-        pass
+    def stop(self, worker_id=None):
+        data = {}
+        if worker_id:
+            data['worker_id'] = worker_id
+        r = requests.delete(workers_url + str(worker_id), json=data,
+                            headers=self.headers)
+        print(r.status_code)
 
 
 if __name__ == '__main__':
     jc = JobControl()
     jc.login('a@a.com', 'aaa')
     # jc.login('test@test.com', 'aaa')
-    jc.submit()
-    jc.update(3, 3)
-    jc.start()
+    if 0:
+        jc.submit()
+        jc.update(3, 3)
+        jc.start()
+    jc.stop(3)

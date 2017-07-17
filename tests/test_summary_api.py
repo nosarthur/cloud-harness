@@ -31,7 +31,7 @@ class TestAPI:
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
             summary = json.loads(res.data)
-            assert summary == {u'workers': {u'working': 1},
+            assert summary == {u'workers': {u'working': 1, u'finished': 0},
                                u'jobs': {u'running': 0, u'failed': 0,
                                          u'waiting': 2, u'finished': 0}}
 

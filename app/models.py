@@ -1,7 +1,6 @@
 import datetime
 from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.dialects import postgresql
 from flask import current_app
 
 from . import db
@@ -19,13 +18,13 @@ class Base(db.Model):
 class Worker(Base):
     __tablename__ = 'workers'
 
-    ip = db.Column(postgresql.INET, nullable=False)
-    price = db.Column(db.Numeric, nullable=False)
+    instance_id = db.Column(db.String, nullable=False)
+    price = db.Column(db.Numeric)
     job_id = db.Column(db.Integer)
     date_finished = db.Column(db.DateTime)
 
-    def __init__(self, ip, price):
-        self.ip = ip
+    def __init__(self, instance_id, price):
+        self.instance_id = instance_id
         self.price = price
 
     def check_health(self):
