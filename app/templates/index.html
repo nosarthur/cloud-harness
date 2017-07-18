@@ -57,6 +57,14 @@
       <div>
           <div class='col-md-12' v-if='signedIn'>
             <ul>
+              <li v-for='worker in workers'> 
+                ID: <span v-text='worker.id'></span>,
+                <span v-text='worker.instance_id'></span>,
+                JOB_ID: <span v-text='worker.job_id'></span>,
+              </li>
+            </ul>
+            <hr>
+            <ul>
               <li v-for='job in jobs'> 
                 ID: <span v-text='job.id'></span>,
                 <span v-text='job.status'></span>,

@@ -66,3 +66,14 @@ class WorkerAPI(Resource):
         w.date_finished = datetime.datetime.utcnow()
         db.session.commit()
         return 'Worker deleted.', 204
+
+
+class WorkerListAPI(Resource):
+
+    decorators = [authenticate]
+
+    # /api/workers/
+    @marshal_with(worker_fields)
+    def get(self):
+        workers = Worker.query.all()
+        return workers

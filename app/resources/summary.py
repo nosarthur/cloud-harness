@@ -15,14 +15,12 @@ class SummaryAPI(Resource):
 
         working = Worker.query.filter_by(date_finished=None).count()
         completed = Worker.query.filter(
-                            Worker.date_finished.isnot(None)).count()
+                                    Worker.date_finished.isnot(None)).count()
 
         return {'jobs': {'waiting': waiting,
-                        'running': running,
-                        'finished': finished,
-                        'failed': failed,
-                        },
+                         'running': running,
+                         'finished': finished,
+                         'failed': failed, },
                 'workers': {'working': working,
-                            'finished': completed,
+                            'finished': completed, }
                 }
-        }

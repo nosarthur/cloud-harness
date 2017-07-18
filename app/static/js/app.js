@@ -1,5 +1,5 @@
 
-var vm = new Vue({
+const vm = new Vue({
   el: '#app',
   data: {
     email: '',
@@ -7,6 +7,7 @@ var vm = new Vue({
     token: '',
     signedIn: false,
     jobs: [],
+    workers: [],
     summary: null,
     error: null,
     msg: '',
@@ -20,7 +21,7 @@ var vm = new Vue({
       this.email = localStorage.email;
       this.fetchSummary();
       if (this.token){
-        this.fetchJobs();
+        this.fetchJobsWorkers();
         this.signedIn = true;
       }
     },
@@ -40,7 +41,7 @@ var vm = new Vue({
                console.log(this.token);
                this.signedIn = true;
                this.password = '';
-               this.fetchJobs();
+               this.fetchJobsWorkers();
              }
            })
            .catch(error => { this.handleError(error); });
@@ -56,13 +57,17 @@ var vm = new Vue({
            })
            .catch(error => { this.handleError(error); });
     },
-    fetchJobs: function() {
-      axios.get('/api/jobs/',
-                {headers: {'Authorization': "Bearer " + this.token}})
-           .then(response => {
-             this.jobs = response.data; 
-           })
-           .catch(error => { this.handleError(error); });
+    fetchJobsWorkers: async function() {
+      try {
+        let response = await axios.get('/api/jobs/',
+                {headers: {'Authorization': "Bearer " + this.token}});
+        this.jobs = response.data; 
+      } catch (error) { this.handleError(error); };
+      try {
+        let response = await axios.get('/api/workers/',
+                {headers: {'Authorization': "Bearer " + this.token}});
+        this.workers= response.data; 
+      } catch (error) { this.handleError(error); };
     },
     fetchSummary: function() {
       axios.get('/api/summary')
