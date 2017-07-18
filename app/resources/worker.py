@@ -53,6 +53,27 @@ class WorkerAPI(Resource):
         db.session.commit()
         return w, 201
 
+    def put(self, worker_id):
+        """
+        Worker periodically report to this access point.
+        """
+        w = Worker.query.get(worker_id)
+        if w is None or w.date_finished:
+            raise BadRequestError('Worker does not exist.')
+
+        parser = reqparse.RequestParser()
+        parser.add_argument('job_id', type=int, location='json')
+        args = parser.parse_args(strict=True)
+
+        job_id = args.get('job_id')
+        if job_id:
+            w.job_id = job_id
+        else:
+            w.date_modified = datetime.datetime.utcnow()
+        db.session.add(w)
+        db.session.commit()
+        return 'Worker updated.', 204
+
     def delete(self, worker_id):
         w = Worker.query.get(worker_id)
         if w is None or w.date_finished:
