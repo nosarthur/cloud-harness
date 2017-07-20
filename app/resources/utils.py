@@ -14,9 +14,10 @@ def authenticate(f):
         auth_str = request.headers.get('Authorization')
         token = auth_str.split(' ')[1] if auth_str else ''
         if token:
-            g.user_id = User.decode_token(token)
-            user = User.query.get(int(g.user_id))
+            user_id = User.decode_token(token)
+            user = User.query.get(int(user_id))
             if user:
+                g.user = user
                 return f(*args, **kwargs)
         raise BadRequestError('Authentication failed.')
     return wrapper

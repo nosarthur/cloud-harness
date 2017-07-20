@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, fields, marshal_with
 
 from ..models import Job
 from .. import db
+from ..views.home import BadRequestError
 from utils import authenticate, get_job
 
 
@@ -22,6 +23,8 @@ class JobAPI(Resource):
 
     @marshal_with(job_fields)
     def get(self, job_id):
+        if not g.user.is_admin and g.job not in g.user.jobs.all():
+            raise BadRequestError('Current user does not own this job.')
         return g.job
 
     @marshal_with(job_fields)
@@ -29,6 +32,8 @@ class JobAPI(Resource):
         """
         Update job priority
         """
+        if not g.user.is_admin and g.job not in g.user.jobs.all():
+            raise BadRequestError('Current user does not own this job.')
         job = g.job
         parser = reqparse.RequestParser()
         parser.add_argument('priority', type=int, required=True,
@@ -40,8 +45,9 @@ class JobAPI(Resource):
         return job, 204
 
     def delete(self, job_id):
-        job = g.job
-        db.session.delete(job)
+        if not g.user.is_admin and g.job not in g.user.jobs.all():
+            raise BadRequestError('Current user does not own this job.')
+        db.session.delete(g.job)
         db.session.commit()
         return 'Job deleted.', 204
 
@@ -57,7 +63,10 @@ class JobListAPI(Resource):
         """
         Get all jobs
         """
-        jobs = Job.query.all()
+        if g.user.is_admin:
+            jobs = Job.query.all()
+        else:
+            jobs = g.user.jobs.all()
         return jobs
 
     @marshal_with(job_fields)
@@ -70,7 +79,7 @@ class JobListAPI(Resource):
                             location='json')
         args = parser.parse_args(strict=True)
 
-        j = Job(g.user_id, args['priority'])
+        j = Job(g.user.id, args['priority'])
         db.session.add(j)
         db.session.commit()
         return j, 201
