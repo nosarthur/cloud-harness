@@ -11,78 +11,101 @@
 <script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="{{ url_for('static', filename='js/card.js') }}"></script>
 {{super()}}
 {% endblock %}
 
 {% block content %}
-<div class='container'>
-    <div id='app'>
+<div id='app'>
 
-      <div class='navbar navbar-default' role='navigation'>
-        <div class='container'>
-          <div class='navbar-header'>
-            <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'>
-                <span class='sr-only'> Toggle navigation </span>
-                <span class='icon-bar'></span>
-                <span class='icon-bar'></span>
-                <span class='icon-bar'></span>
-            </button>
-          </div>
-          <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
-            <ul class='nav navbar-nav' v-if='signedIn'>
-              <li> <a v-text='email'></a></li>
-            </ul>
-            <ul class='nav navbar-nav navbar-right' v-if='signedIn'>
-              <li> <a @click='onLogout'>Logout</a> </li>
-            </ul>
-            <ul class='nav navbar-nav' v-else>
-              <li> <a>
-                <form @submit.prevent='onLogin' action='/'>
-                  <input v-model='email' placeholder='email' type='email'>
-                  <input v-model='password' placeholder='password' type='password'>
-                  <input value='Log in' type='submit'>
-                </form> </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+  <div class='navbar navbar-inverse navbar-fixed-top' role='navigation'>
+    <div class='container-fluid'>
+      <div class='navbar-header'>
+        <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'>
+            <span class='sr-only'> Toggle navigation </span>
+            <span class='icon-bar'></span>
+            <span class='icon-bar'></span>
+            <span class='icon-bar'></span>
+        </button>
       </div>
+      <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
+        <ul class='nav navbar-nav' v-if='signedIn'>
+          <li> <a v-text='email'></a></li>
+        </ul>
+        <form class="navbar-form navbar-left" @submit.prevent='onLogin' v-else>
+          <div class="form-group">
+            <input v-model='email' placeholder='email' type='email' class='form-control'>
+            <input v-model='password' placeholder='password' type='password' class='form-control'>
+            <button class='btn btn-info'>Log In</button>
+          </div>
+        </form>
+        <form class='navbar-form navbar-right' v-show='signedIn' @submit.prevent='onLogout'>
+            <button class='btn btn-danger'>Log Out</button>
+        </form>
+      </div>
+    </div>
+  </div>
 
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Hello, world!</h1>
+      <p> current status</p>
       <div v-for='(value, key) in summary'>
         <div v-for='(count, status) in value'>
           {% raw %} {{key}} : {{status}} : {{count}} {% endraw %} 
         </div>
       </div>
-
-      <div>
-          <div class='col-md-12' v-if='signedIn'>
-            <ul>
-              <li v-for='worker in workers'> 
-                ID: <span v-text='worker.id'></span>,
-                <span v-text='worker.instance_id'></span>,
-                JOB_ID: <span v-text='worker.job_id'></span>,
-              </li>
-            </ul>
-            <hr>
-            <ul>
-              <li v-for='job in jobs'> 
-                ID: <span v-text='job.id'></span>,
-                <span v-text='job.status'></span>,
-                USER_ID: <span v-text='job.user_id'></span>,
-                <span v-text='job.priority'></span>
-              </li>
-            </ul>
-          </div>
-      </div>
-
-      <div>
-      <template v-if='msg'>
-      <div class='alert alert-warning' >
-        <button type='button' class='close' data-dismiss='alert'> &times; </button>
-        <span v-text='msg'> </span>
-      </div>
-      </template>
-      </div>
     </div>
+  </div>
+
+  <div>
+      <div class='col-md-12' v-if='signedIn'>
+        <div>
+            <div class="col-sm-3" v-for='worker in workers'>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title" v-text='worker.id'></h3>
+                </div>
+                <div class="panel-body">
+                  <p><span class="badge alert-info"> instance id </span>
+                    {%raw%}  {{ worker.instance_id }} {%endraw%}
+                  </p>
+                  <p><span class="badge alert-danger"> job id: </span>
+                     <strong> {%raw%} {{worker.job_id}} {%endraw%} </strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div>
+            <div class="col-sm-3" v-for='job in jobs'>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h3 class="panel-title">
+                    {%raw%}  {{job.id}} {{ job.status }} {%endraw%}
+                  </h3>
+                </div>
+                <div class="panel-body">
+                  <p><span class="badge alert-info"> priority </span>
+                    {%raw%}  {{ job.priority }} {%endraw%}
+                  </p>
+                  <p><span class="badge alert-danger"> user id: </span>
+                     <strong> {%raw%} {{job.user_id}} {%endraw%} </strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+  </div>
+
+  <div>
+  <template v-if='msg'>
+  <div class='alert alert-warning' >
+    <button type='button' class='close' data-dismiss='alert'> &times; </button>
+    <span v-text='msg'> </span>
+  </div>
+  </template>
+  </div>
 </div>
 {% endblock %}

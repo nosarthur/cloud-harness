@@ -99,15 +99,6 @@ class TestAPI1:
 @pytest.mark.usefixtures('myapp')
 class TestAPI2:
     def test_delete(self):
-        headers = [('Authorization', 'Bearer ' + self.admin_token)]
-        with self.app.test_request_context('/api/jobs/1',
-                                           headers=headers,
-                                           method='DELETE'):
-            res = self.app.full_dispatch_request()
-            assert res.status_code == 204
-            j = Job.query.get(1)
-            assert not j
-
         # u2 cannot change job 1
         headers = [('Authorization', 'Bearer ' + self.u2_token),
                    ('Content-Type', 'application/json')]
@@ -116,6 +107,16 @@ class TestAPI2:
                                            method='DELETE'):
             res = self.app.full_dispatch_request()
             assert res.status_code == 400
+
+        # admin can delete anything
+        headers = [('Authorization', 'Bearer ' + self.admin_token)]
+        with self.app.test_request_context('/api/jobs/1',
+                                           headers=headers,
+                                           method='DELETE'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 204
+            j = Job.query.get(1)
+            assert not j
 
 
 @pytest.mark.usefixtures('myapp')

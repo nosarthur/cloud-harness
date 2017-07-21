@@ -23,7 +23,7 @@ class JobAPI(Resource):
 
     @marshal_with(job_fields)
     def get(self, job_id):
-        if not g.user.is_admin and g.job not in g.user.jobs.all():
+        if not g.user.is_owner(job_id):
             raise BadRequestError('Current user does not own this job.')
         return g.job
 
@@ -32,7 +32,7 @@ class JobAPI(Resource):
         """
         Update job priority
         """
-        if not g.user.is_admin and g.job not in g.user.jobs.all():
+        if not g.user.is_owner(job_id):
             raise BadRequestError('Current user does not own this job.')
         job = g.job
         parser = reqparse.RequestParser()
@@ -45,7 +45,7 @@ class JobAPI(Resource):
         return job, 204
 
     def delete(self, job_id):
-        if not g.user.is_admin and g.job not in g.user.jobs.all():
+        if not g.user.is_owner(job_id):
             raise BadRequestError('Current user does not own this job.')
         db.session.delete(g.job)
         db.session.commit()

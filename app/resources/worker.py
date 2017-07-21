@@ -1,5 +1,6 @@
 import boto3
 import datetime
+from flask import g
 from flask_restful import Resource, reqparse, marshal_with, fields
 
 from ..models import Worker
@@ -75,10 +76,14 @@ class WorkerAPI(Resource):
         return 'Worker updated.', 204
 
     def delete(self, worker_id):
+        """
+        """
         w = Worker.query.get(worker_id)
         if w is None or w.date_finished:
             raise BadRequestError('Worker does not exist.')
-
+        if not g.user.is_owner(w.job_id):
+            raise BadRequestError('Current user does not own job %d.'
+                                  % w.job_id)
         s = boto3.Session(profile_name='dev')
         ec2 = s.resource('ec2', region_name='us-east-1')
         rc = ec2.instances.filter(InstanceIds=[]).terminate()

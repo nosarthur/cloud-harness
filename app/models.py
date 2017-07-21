@@ -63,6 +63,12 @@ class User(Base):
         self.password = password
         self.is_admin = is_admin
 
+    def is_owner(self, job_id):
+        if self.is_admin:
+            return True
+        ids = set(j.id for j in self.jobs)
+        return job_id in ids
+
     def __repr__(self):
         return '<User %r id=%d>' % (self.name, self.id)
 
