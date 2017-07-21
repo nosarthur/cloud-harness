@@ -9,27 +9,49 @@ A wep application for AWS management.
 * API access to jobs with JWT authentication
 * create/end AWS EC2 CPU instances
 
-## script
+## user guide
 
-* Add user
+* use a linux or mac machine
+* have psql installed and running
+* have python and `pip` installed
 
-`python manager.py adduser`
+After downloading the code, go to the project root folder, create a virtual environment and install the required packages
+
+```
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To start the server locally in development mode, run 
+
+`python manage.py runserver`
+
+In production, an environment variable `FLASK_CONFIG` should be set to `production`.
+If not set, the app configuration defaults to `development`.
+
+To add a regular user, run 
+
+`python manager.py adduser abc@def.com -n "John Doe"`
+
+To add an administrator user, run 
+
+`python manager.py adduser abc@def.com -n "John Doe" -a`
 
 * Initialize database 
 
 `python manager.py initDB`
 
-* Migrate database
+To migrate database, run
 
 ```
 python manager.py db migrate
 python manager.py db upgrade
 ```
 
-* Testing
+To test code, run
 
 `python manager.py test`
 
-* Run local server 
 
-`python manage.py runserver`

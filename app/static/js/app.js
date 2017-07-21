@@ -1,6 +1,7 @@
 const vm = new Vue({
   el: '#app',
   data: {
+    name: '',
     email: '',
     password: '',
     token: '',
@@ -18,6 +19,7 @@ const vm = new Vue({
     checkLogin: function() {
       this.token = localStorage.token;
       this.email = localStorage.email;
+      this.name = localStorage.name;
       this.fetchSummary();
       if (this.token){
         this.fetchJobsWorkers();
@@ -35,8 +37,10 @@ const vm = new Vue({
              this.msg = response.data.msg;
              if (response.data.token){
                this.token = response.data.token;
+               this.name = response.data.name;
                localStorage.token = response.data.token;
                localStorage.email = this.email;
+               localStorage.name = this.name;
                console.log(this.token);
                this.signedIn = true;
                this.password = '';
@@ -62,11 +66,13 @@ const vm = new Vue({
                 {headers: {'Authorization': "Bearer " + this.token}});
         this.jobs = response.data; 
       } catch (error) { this.handleError(error); };
+      /*
       try {
         let response = await axios.get('/api/workers/',
                 {headers: {'Authorization': "Bearer " + this.token}});
         this.workers= response.data; 
       } catch (error) { this.handleError(error); };
+      */
     },
     fetchSummary: function() {
       axios.get('/api/summary')
@@ -85,7 +91,9 @@ const vm = new Vue({
             this.token = '';
             this.signedIn = false;
             break;
-
+          default:
+            this.token = '';
+            this.signedIn = false;
         }
       } else if (e.request){
         // The request was made but no response was received

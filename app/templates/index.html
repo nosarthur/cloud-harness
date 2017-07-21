@@ -19,7 +19,7 @@
 <div id='app'>
 
   <div class='navbar navbar-inverse navbar-fixed-top' role='navigation'>
-    <div class='container-fluid'>
+    <div class='container'>
       <div class='navbar-header'>
         <button type='button' class='navbar-toggle' data-toggle='collapse' data-target='#bs-example-navbar-collapse-1'>
             <span class='sr-only'> Toggle navigation </span>
@@ -27,12 +27,10 @@
             <span class='icon-bar'></span>
             <span class='icon-bar'></span>
         </button>
+        <a class="navbar-brand" v-text='name' v-if='signedIn'></a>
       </div>
       <div class='collapse navbar-collapse' id='bs-example-navbar-collapse-1'>
-        <ul class='nav navbar-nav' v-if='signedIn'>
-          <li> <a v-text='email'></a></li>
-        </ul>
-        <form class="navbar-form navbar-left" @submit.prevent='onLogin' v-else>
+        <form class="navbar-form navbar-right" @submit.prevent='onLogin' v-show='!signedIn'>
           <div class="form-group">
             <input v-model='email' placeholder='email' type='email' class='form-control'>
             <input v-model='password' placeholder='password' type='password' class='form-control'>
@@ -48,8 +46,8 @@
 
   <div class="jumbotron">
     <div class="container">
-      <h1>Hello, world!</h1>
-      <p> current status</p>
+      <h1>Cloud Harness</h1>
+      <p> overall status</p>
       <div v-for='(value, key) in summary'>
         <div v-for='(count, status) in value'>
           {% raw %} {{key}} : {{status}} : {{count}} {% endraw %} 

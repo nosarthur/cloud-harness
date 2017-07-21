@@ -22,7 +22,7 @@ def initDB(drop=False):
 
 
 @manager.command
-def adduser(email, name='test'):
+def adduser(email, name='test', admin=False):
     '''Register a new user.'''
     from getpass import getpass
     password = getpass()
@@ -31,7 +31,7 @@ def adduser(email, name='test'):
         import sys
         sys.exit('Error: passwords do not match.')
     db.create_all()
-    user = User(name, email, password)
+    user = User(name, email, password, admin)
     db.session.add(user)
     db.session.commit()
     print('User {0} was registered successfully.'.format(user))
