@@ -4,7 +4,7 @@ import json
 from app.models import Job
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('full_app')
 class TestAPI1:
     """
     Functions in this class do not change the database.
@@ -96,7 +96,7 @@ class TestAPI1:
 # The following classes contain functions that change the database
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('full_app')
 class TestAPI2:
     def test_delete(self):
         # u2 cannot change job 1
@@ -119,7 +119,7 @@ class TestAPI2:
             assert not j
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('full_app')
 class TestAPI3:
     def test_put(self):
         # u2 can change job 2
@@ -146,10 +146,10 @@ class TestAPI3:
             assert res.status_code == 400
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('vanilla_app')
 class TestAPI4:
     def test_post(self):
-        headers = [('Authorization', 'Bearer ' + self.u2_token),
+        headers = [('Authorization', 'Bearer ' + self.u1_token),
                    ('Content-Type', 'application/json')]
         with self.app.test_request_context('/api/jobs/',
                                            headers=headers,
@@ -158,6 +158,6 @@ class TestAPI4:
             res = self.app.full_dispatch_request()
             assert res.status_code == 201
             j = json.loads(res.data)
-            assert j['id'] == 5
-            assert j['user_id'] == 2
+            assert j['id'] == 1
+            assert j['user_id'] == 1
             assert j['priority'] == 2

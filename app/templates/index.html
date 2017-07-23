@@ -48,10 +48,16 @@
     <div class="container">
       <h1>Cloud Harness</h1>
       <p> overall status</p>
-      <div v-for='(value, key) in summary'>
-        <div v-for='(count, status) in value'>
-          {% raw %} {{key}} : {{status}} : {{count}} {% endraw %} 
-        </div>
+      <div v-for='(value, key) in summary' class='col-md-6'>
+        <ul class='list-group'>
+          <li class='list-group-item active'>
+            <h4 class='list-group-item-heading'> {% raw %} {{key}}  {% endraw %} </h4>
+          </li>
+          <li class='list-group-item' v-for='(count, status) in value' > 
+          {% raw %} <span class='badge'> {{count}}</span> {{status}}
+          {% endraw %} 
+          </li>
+        </ul>
       </div>
     </div>
   </div>

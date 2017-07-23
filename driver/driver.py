@@ -1,25 +1,21 @@
 import requests
 
-
 # curl -X POST -d "{'token': 'asdfasdfasdfasdfadf'}"
 #      -H 'Content-Type: application/json' 127.0.0.1:5000/jobs/
 
-jobs_url = 'http://127.0.0.1:5000/api/jobs/'
-workers_url = 'http://127.0.0.1:5000/api/workers/'
-login_url = 'http://127.0.0.1:5000/auth/login'
-headers = {'Content-Type': 'application/json', 'Accept': 'application/json',
-           'Authorization': ''}
-
 
 class JobControl(object):
-    def __init__(self, priority=0):
+    def __init__(self, priority=0, base_url='http://127.0.0.1:5000/'):
         self.priority = priority
         self.token = ''
-        self.headers = headers
+        self.headers = {'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': ''}
+        self.base = base_url
 
     def login(self, email, password):
         data = {'email': email, 'password': password}
-        r = requests.post(login_url, json=data)
+        r = requests.post(self.base + 'auth/login', json=data)
         if r.status_code == 200:
             self.token = r.json()['token']
             self.headers['Authorization'] = 'Bearer ' + self.token
@@ -29,12 +25,14 @@ class JobControl(object):
 
     def submit(self):
         data = {'priority': self.priority}
-        r = requests.post(jobs_url, json=data, headers=self.headers)
+        r = requests.post(self.base + 'api/jobs/', json=data,
+                          headers=self.headers)
         if r.status_code != 201:
             print('Submission failed.')
 
     def update(self, job_id, priority):
-        r = requests.put(jobs_url + str(job_id), json={'priority': priority},
+        r = requests.put(self.base + 'api/jobs/' + str(job_id),
+                         json={'priority': priority},
                          headers=self.headers)
         if r.status_code != 204:
             print('Update failed.')
@@ -48,7 +46,8 @@ class JobControl(object):
             data['price'] = price
         assert n_workers > 0 and n_workers < 6
         data['n_workers'] = n_workers
-        r = requests.get(workers_url+'new', json=data, headers=self.headers)
+        r = requests.get(self.base + 'api/workers/new',
+                         json=data, headers=self.headers)
         print(r.status_code)
         print(r.json())
 
@@ -56,7 +55,8 @@ class JobControl(object):
         data = {}
         if worker_id:
             data['worker_id'] = worker_id
-        r = requests.delete(workers_url + str(worker_id), json=data,
+        r = requests.delete(self.base + 'api/workers/' + str(worker_id),
+                            json=data,
                             headers=self.headers)
         print(r.status_code)
 

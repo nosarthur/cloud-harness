@@ -4,7 +4,7 @@ import json
 # from app.models import Worker
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('full_app')
 class TestAPI1:
     """
     Functions in this class do not change the database.
@@ -21,14 +21,14 @@ class TestAPI1:
             assert w1['id'] == 1
             assert w2['id'] == 2
             assert w1['job_id'] == 1
-            assert w2['job_id'] == 2
+            assert not w2['job_id']
 
 # FIXME: for now all users can see all workers
 
 # The following classes contain functions that change the database
 
 
-@pytest.mark.usefixtures('myapp')
+@pytest.mark.usefixtures('full_app')
 class TestAPI2:
     def test_delete(self):
         # FIXME: AWS access should be mocked
