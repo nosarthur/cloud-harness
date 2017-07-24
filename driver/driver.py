@@ -20,15 +20,22 @@ class JobControl(object):
             self.token = r.json()['token']
             self.headers['Authorization'] = 'Bearer ' + self.token
             print(self.token)
+            return 0
         else:
             print('Login failed.')
+            return 1
 
-    def submit(self):
-        data = {'priority': self.priority}
-        r = requests.post(self.base + 'api/jobs/', json=data,
+    def submit(self, data=None):
+        if not self.token:
+            print('Log in first.')
+            return 1
+        job_info = {'priority': self.priority, 'data': data}
+        r = requests.post(self.base + 'api/jobs/', json=job_info,
                           headers=self.headers)
         if r.status_code != 201:
             print('Submission failed.')
+            return 2
+        return 0
 
     def update(self, job_id, priority):
         r = requests.put(self.base + 'api/jobs/' + str(job_id),

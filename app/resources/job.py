@@ -75,6 +75,7 @@ class JobListAPI(Resource):
         Create a new job.
         """
         parser = reqparse.RequestParser()
+        parser.add_argument('data', type=str, location='json')
         parser.add_argument('priority', type=int, required=True,
                             location='json')
         args = parser.parse_args(strict=True)

@@ -7,6 +7,11 @@
 <link rel='shortcut icon' href='{{ url_for('static', filename='img/favicon.ico') }}'>
 {% endblock %}
 
+{% block styles %}
+{{ super() }}
+<link rel='stylesheet' type='text/css' href='{{ url_for('static', filename='css/style.css') }}'>
+{% endblock %}
+
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
@@ -38,7 +43,7 @@
           </div>
         </form>
         <form class='navbar-form navbar-right' v-show='signedIn' @submit.prevent='onLogout'>
-            <button class='btn btn-danger'>Log Out</button>
+          <button class='btn btn-danger'>Log Out</button>
         </form>
       </div>
     </div>
@@ -62,7 +67,23 @@
     </div>
   </div>
 
-  <div>
+    <div class='container'>
+      <form class='form-inline' @submit.prevent='submitJob' v-show='signedIn'>
+        <div class="form-group">
+          <select class='form-control' id='jobPriority'>
+            <option value='0'> priority: 0 </option>
+            <option value='1'> priority: 1 </option>
+            <option value='2'> priority: 2 </option>
+          </select>
+          <input type="file" id="jobInputFile" class='form-control'>
+          <button class="btn btn-default"> Submit Job!</button>
+        </div>
+      </form>
+    <hr>
+    </div>
+
+  <div class='container-fluid'>
+  <div class='row'>
       <div class='col-md-12' v-if='signedIn'>
         <div>
             <div class="col-sm-3" v-for='worker in workers'>
@@ -102,14 +123,15 @@
         </div>
       </div>
   </div>
-
-  <div>
-  <template v-if='msg'>
-  <div class='alert alert-warning' >
-    <button type='button' class='close' data-dismiss='alert'> &times; </button>
-    <span v-text='msg'> </span>
   </div>
-  </template>
+
+  <div class='container'>
+    <template v-if='msg'>
+      <div class='alert alert-warning' >
+        <button type='button' class='close' data-dismiss='alert'> &times; </button>
+        <span v-text='msg'> </span>
+      </div>
+    </template>
   </div>
 </div>
 {% endblock %}

@@ -36,11 +36,9 @@ const vm = new Vue({
            .then(response => {
              this.msg = response.data.msg;
              if (response.data.token){
-               this.token = response.data.token;
-               this.name = response.data.name;
-               localStorage.token = response.data.token;
+               this.token = localStorage.token = response.data.token;
+               this.name = localStorage.name = response.data.name;
                localStorage.email = this.email;
-               localStorage.name = this.name;
                console.log(this.token);
                this.signedIn = true;
                this.password = '';
@@ -59,6 +57,24 @@ const vm = new Vue({
              localStorage.token = '';
            })
            .catch(error => { this.handleError(error); });
+    },
+    uploadJob: async function() {
+      try {
+        let sel = document.getElementById('jobPriority')
+        let priority = Number(sel.options[sel.selectedIndex].value);
+        // let formData = new FormData();
+        // let inputFile = document.querySelector('#jobInputFile');
+        // FIXME: we can attach the file as base64 string for now
+        // for future, maybe rpc
+        let jobData = {'priority': priority, 'data': ''};
+        let response = await axios.post('/api/jobs/', json=jobData,
+                {headers: {'Authorization': "Bearer " + this.token}});
+        this.fetchJobsWorkers();
+      } catch (error) { this.handleError(error); };
+    },
+    submitJob: function() {
+      this.uploadJob().then(this.fetchJobsWorkers)
+                 .catch(error => { this.handleError(error); });
     },
     fetchJobsWorkers: async function() {
       try {
@@ -88,12 +104,10 @@ const vm = new Vue({
         this.msg = e.response.data.message;
         switch (this.msg) {
           case 'Authentication failed.':
-            this.token = '';
+            this.token = localStorage.token = '';
             this.signedIn = false;
             break;
           default:
-            this.token = '';
-            this.signedIn = false;
         }
       } else if (e.request){
         // The request was made but no response was received
