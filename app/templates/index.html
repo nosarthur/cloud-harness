@@ -83,52 +83,34 @@
     </div>
 
   <div class='container-fluid'>
-  <div class='row'>
+    <div class='row'>
       <div class='col-md-12' v-if='signedIn'>
-        <div>
-            <div class="col-sm-3" v-for='worker in workers'>
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h3 class="panel-title" v-text='worker.id'></h3>
-                </div>
-                <div class="panel-body">
-                  <p><span class="badge alert-info"> instance id </span>
-                    {%raw%}  {{ worker.instance_id }} {%endraw%}
-                  </p>
-                  <p><span class="badge alert-danger"> job id: </span>
-                     <strong> {%raw%} {{worker.job_id}} {%endraw%} </strong>
-                  </p>
-                </div>
-              </div>
+        <div class="col-sm-3" v-for='worker in workers'>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title" v-text='worker.id'></h3>
             </div>
-        </div>
-        <div>
-            <div class="col-sm-3" v-for='job in jobs'>
-              <div class="panel panel-default">
-                <div class="panel-heading">
-                  <h3 class="panel-title">
-                    {%raw%}  {{job.id}} {{ job.status }} {%endraw%}
-                  </h3>
-                </div>
-                <div class="panel-body">
-                  <p><span class="badge alert-info"> priority </span>
-                    {%raw%}  {{ job.priority }} {%endraw%}
-                  </p>
-                  <p><span class="badge alert-danger"> user id: </span>
-                     <strong> {%raw%} {{job.user_id}} {%endraw%} </strong>
-                  </p>
-                </div>
-              </div>
+            <div class="panel-body">
+              <p><span class="badge alert-info"> instance id </span>
+                {%raw%}  {{ worker.instance_id }} {%endraw%}
+              </p>
+              <p><span class="badge alert-danger"> job id: </span>
+                 <strong> {%raw%} {{worker.job_id}} {%endraw%} </strong>
+              </p>
             </div>
+          </div>
         </div>
+        <job-card v-for='job in jobs' v-bind:job='job'></job-card>
       </div>
-  </div>
+    </div>
   </div>
 
   <div class='container'>
     <template v-if='msg'>
       <div class='alert alert-warning' >
-        <button type='button' class='close' data-dismiss='alert'> &times; </button>
+        <button type='button' class='close' data-dismiss='alert'>
+          &times;
+        </button>
         <span v-text='msg'> </span>
       </div>
     </template>
