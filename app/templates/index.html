@@ -16,7 +16,7 @@
 <script src="{{ url_for('static', filename='js/vue.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-<script src="{{ url_for('static', filename='js/card.js') }}"></script>
+<script src="{{ url_for('static', filename='js/job-card.js') }}"></script>
 {{super()}}
 {% endblock %}
 
@@ -68,7 +68,7 @@
   </div>
 
     <div class='container'>
-      <form class='form-inline' @submit.prevent='submitJob' v-show='signedIn'>
+      <form class='form-inline' v-show='signedIn'>
         <div class="form-group">
           <select class='form-control' id='jobPriority'>
             <option value='0'> priority: 0 </option>
@@ -76,8 +76,9 @@
             <option value='2'> priority: 2 </option>
           </select>
           <input type="file" id="jobInputFile" class='form-control'>
-          <button class="btn btn-default"> Submit Job!</button>
+          <button class="btn btn-default" @click.prevent='submitJob'> Submit Job!</button>
         </div>
+          <button class="btn btn-default" @click.prevent='fetchJobsWorkers'> Refresh </button>
       </form>
     <hr>
     </div>

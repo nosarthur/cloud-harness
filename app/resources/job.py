@@ -3,7 +3,6 @@ from flask_restful import Resource, reqparse, fields, marshal_with
 
 from ..models import Job
 from .. import db
-from ..views.home import BadRequestError
 from utils import authenticate, get_job
 
 
@@ -19,12 +18,10 @@ class JobAPI(Resource):
     """
     Read, update and delete for single job.
     """
-    decorators = [authenticate, get_job]
+    decorators = [get_job, authenticate]
 
     @marshal_with(job_fields)
     def get(self, job_id):
-        if not g.user.is_owner(job_id):
-            raise BadRequestError('Current user does not own this job.')
         return g.job
 
     @marshal_with(job_fields)
@@ -32,8 +29,6 @@ class JobAPI(Resource):
         """
         Update job priority
         """
-        if not g.user.is_owner(job_id):
-            raise BadRequestError('Current user does not own this job.')
         job = g.job
         parser = reqparse.RequestParser()
         parser.add_argument('priority', type=int, required=True,
@@ -44,12 +39,20 @@ class JobAPI(Resource):
         db.session.commit()
         return job, 204
 
+    # /api/jobs/start/<int:job_id>
+    def post(self, job_id):
+        """
+        Start a chosen job
+        """
+
+        return 'success', 204
+
+    # /api/jobs/stop/<int:job_id>
     def delete(self, job_id):
-        if not g.user.is_owner(job_id):
-            raise BadRequestError('Current user does not own this job.')
+        # FIXME: do not delete from db, just stop it
         db.session.delete(g.job)
         db.session.commit()
-        return 'Job deleted.', 204
+        return 'Job stopped.', 204
 
 
 class JobListAPI(Resource):

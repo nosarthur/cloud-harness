@@ -70,10 +70,11 @@ class JobControl(object):
 
 if __name__ == '__main__':
     jc = JobControl()
-    jc.login('a@a.com', 'aaa')
-    # jc.login('test@test.com', 'aaa')
+    # jc.login('a@a.com', 'aaa')
+    jc.login('test@test.com', 'aaa')
     if 0:
         jc.submit()
-        jc.update(3, 3)
+        # jc.update(3, 3)
         jc.start()
-    jc.stop(3)
+    else:
+        jc.stop(3)
