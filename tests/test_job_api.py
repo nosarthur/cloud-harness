@@ -96,6 +96,7 @@ class TestAPI1:
 # The following classes contain functions that change the database
 
 
+@pytest.mark.skip(reason="need to mock aws part")
 @pytest.mark.usefixtures('full_app')
 class TestAPI2:
     def test_delete(self):
@@ -116,7 +117,7 @@ class TestAPI2:
             res = self.app.full_dispatch_request()
             assert res.status_code == 204
             j = Job.query.get(1)
-            assert not j
+            assert j.status == 'STOPPED'
 
 
 @pytest.mark.usefixtures('full_app')
