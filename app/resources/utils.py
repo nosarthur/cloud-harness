@@ -1,22 +1,8 @@
-import boto3
 from functools import wraps
 from flask import g, request
 
 from ..models import User, Job
 from ..views.home import BadRequestError
-
-
-def get_aws_instances(n_workers=1):
-    # get aws instance: 64bit ubuntu
-    s = boto3.Session(profile_name='dev')
-    ec2 = s.resource('ec2', region_name='us-east-1')
-    rc = ec2.create_instances(ImageId='ami-d15a75c7',
-                              InstanceType='t2.nano',
-                              MinCount=1,
-                              MaxCount=n_workers)
-    if not rc:
-        raise BadRequestError('Cannot get AWS instance.')
-    return rc
 
 
 def authenticate(f):

@@ -1,12 +1,11 @@
-import boto3
 import datetime
 from flask import g
 from flask_restful import Resource, reqparse, marshal_with, fields
 
-from ..models import Worker
+from ..models import Worker, get_aws_instances
 from .. import db
 from ..views.home import BadRequestError
-from utils import authenticate, get_aws_instances
+from utils import authenticate
 
 
 worker_fields = {
@@ -35,9 +34,9 @@ class WorkerAPI(Resource):
         if n_workers > 5 or n_workers < 1:
             raise BadRequestError('Only 1 to 5 workers are allowed.')
 
-        rc = get_aws_instances(n_workers)
+        rc = get_aws_instances(n_workers, price)
         for x in rc:
-            w = Worker(rc[0].id, price)
+            w = Worker(x.id, price)
             db.session.add(w)
         db.session.commit()
         return w, 201
@@ -72,12 +71,8 @@ class WorkerAPI(Resource):
         if not g.user.is_owner(w.job_id):
             raise BadRequestError('Current user does not own job %d.'
                                   % w.job_id)
-        s = boto3.Session(profile_name='dev')
-        ec2 = s.resource('ec2', region_name='us-east-1')
-        rc = ec2.instances.filter(InstanceIds=[]).terminate()
-        if not rc:
-            raise BadRequestError('Cannot terminate AWS instance.')
-        w.date_finished = datetime.datetime.utcnow()
+        w.stop()
+        db.session.add(w)
         db.session.commit()
         return 'Worker deleted.', 204
 

@@ -1,3 +1,4 @@
+bototest.py 
 *.pyc
 *.json
 migrations/alembic.ini

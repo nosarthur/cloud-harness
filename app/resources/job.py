@@ -1,9 +1,10 @@
 from flask import g
 from flask_restful import Resource, reqparse, fields, marshal_with
 
-from ..models import Job
+from ..models import Job, Worker, get_aws_instances
 from .. import db
 from utils import authenticate, get_job
+from ..views.home import BadRequestError
 
 
 job_fields = {
@@ -44,13 +45,21 @@ class JobAPI(Resource):
         """
         Start a chosen job
         """
-
+        if g.job.status != 'WAITING':
+            raise BadRequestError('Job is not waiting.')
+        rc = get_aws_instances(1, on_demand=True)
+        w = Worker(rc[0].id, g.job.id)
+        db.session.add(w)
+        db.session.commit()
         return 'success', 204
 
     # /api/jobs/stop/<int:job_id>
     def delete(self, job_id):
         # FIXME: do not delete from db, just stop it
-        db.session.delete(g.job)
+        w = Worker.query.filter_by(job_id=g.job.id).first()
+        w.stop()
+        g.job.stop()
+        db.session.add_all([w, g.job])
         db.session.commit()
         return 'Job stopped.', 204
 

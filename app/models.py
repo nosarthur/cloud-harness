@@ -1,9 +1,11 @@
+import boto3
 import datetime
 from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import current_app
 
 from . import db
+from views.home import BadRequestError
 
 
 class Base(db.Model):
@@ -15,17 +17,57 @@ class Base(db.Model):
                               onupdate=datetime.datetime.utcnow())
 
 
+def dump_aws_instance(instance_id, on_demand=False):
+    s = boto3.Session(profile_name='dev')
+    ec2 = s.resource('ec2', region_name='us-east-1')
+    rc = ec2.instances.filter(InstanceIds=[instance_id]).terminate()
+    if not rc:
+        raise BadRequestError('Cannot terminate AWS instance.')
+
+
+def get_aws_instances(n_workers=1, on_demand=False, price=None):
+    """
+    @type price: C{float}
+    """
+    ubuntu_64bit = 'ami-d15a75c7'
+    s = boto3.Session(profile_name='dev', region_name='us-east-1')
+    if on_demand:
+        ec2 = s.resource('ec2')
+        rc = ec2.create_instances(ImageId=ubuntu_64bit,
+                                  InstanceType='t2.nano',
+                                  MinCount=1,
+                                  MaxCount=n_workers,
+                                  )
+    else:  # spot instance
+        client = s.client('ec2')
+        rc = client.request_spot_instances(
+                ImageId=ubuntu_64bit,
+                LaunchSpecification={'ImageId': ubuntu_64bit,
+                                     'InstanceType': 'm4.large', },
+                InstanceCount=n_workers,
+                SpotPrice=str(price),
+               )
+    if not rc:
+        raise BadRequestError('Cannot get AWS instance.')
+    return rc
+
+
 class Worker(Base):
     __tablename__ = 'workers'
 
     instance_id = db.Column(db.String, nullable=False)
-    price = db.Column(db.Numeric)
     job_id = db.Column(db.Integer)
     date_finished = db.Column(db.DateTime)
 
-    def __init__(self, instance_id, price):
+    def __init__(self, instance_id, job_id=None):
         self.instance_id = instance_id
-        self.price = price
+        self.job_id = job_id
+
+    def stop(self):
+        if self.date_finished:
+            raise BadRequestError('Worker has already stopped.')
+        dump_aws_instance(self.instance_id, on_demand=True)
+        self.date_finished = datetime.datetime.utcnow()
 
     def check_health(self):
         # FIXME: make the return values more meaningful for debugging
@@ -136,7 +178,11 @@ class Job(Base):
         return '<Job %d>' % self.id
 
     def stop(self):
-        pass
+        if self.status != 'RUNNING':
+            raise BadRequestError('Job is not running.')
+        self.status = 'STOPPED'
 
     def start(self):
-        pass
+        if self.status == 'RUNNING':
+            raise BadRequestError('Job has already started.')
+        self.status = 'RUNNING'
