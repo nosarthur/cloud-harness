@@ -11,10 +11,14 @@ A wep application for AWS management.
 
 ## user guide
 
+### prerequisite
+
 * use a linux or mac machine
 * have psql installed and running
 * have python and `pip` installed
+* have aws credentials in `~/.aws/credentials` (I use `profile_name` dev)
 
+### installation
 After downloading the code, go to the project root folder, create a virtual environment and install the required packages
 
 ```
@@ -23,6 +27,8 @@ virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
+
+### administration
 
 To start the server locally in development mode, run 
 
@@ -53,5 +59,4 @@ python manager.py db upgrade
 To test code, run
 
 `python manager.py test`
-
 

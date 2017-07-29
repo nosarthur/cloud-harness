@@ -67,7 +67,7 @@ const vm = new Vue({
         // FIXME: we can attach the file as base64 string for now
         // for future, maybe rpc
         let jobData = {'priority': priority, 'data': ''};
-        let response = await axios.post('/api/jobs/', json=jobData,
+        let response = await axios.post('/api/jobs', json=jobData,
                 {headers: {'Authorization': "Bearer " + this.token}});
         this.fetchJobsWorkers();
       } catch (error) { this.handleError(error); };
@@ -78,7 +78,7 @@ const vm = new Vue({
     },
     fetchJobsWorkers: async function() {
       try {
-        let response = await axios.get('/api/jobs/',
+        let response = await axios.get('/api/jobs',
                 {headers: {'Authorization': "Bearer " + this.token}});
         this.jobs = response.data; 
       } catch (error) { this.handleError(error); };
@@ -104,6 +104,7 @@ const vm = new Vue({
         this.msg = e.response.data.message;
         switch (this.msg) {
           case 'Authentication failed.':
+          case 'JWT token error: Signature has expired.':
             this.token = localStorage.token = '';
             this.signedIn = false;
             break;

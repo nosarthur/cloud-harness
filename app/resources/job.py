@@ -15,20 +15,57 @@ job_fields = {
 }
 
 
-class JobAPI(Resource):
+class JobStatusAPI(Resource):
     """
-    Read, update and delete for single job.
+    Update job status as a worker.
     """
     decorators = [get_job, authenticate]
 
     @marshal_with(job_fields)
+    def put(self, job_id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('status', type=str, required=True, location='json')
+        parser.add_argument('result_url', type=str, location='json')
+        args = parser.parse_args(strict=True)
+
+        # FIXME: maybe use state pattern
+        #        g.job.changeStatus(args.status)
+        if args.status == 'RUNNING':
+            g.job.start()
+        if args.status == 'FINISHED':
+            g.job.finish()
+        if args.status == 'STOPPED':
+            g.job.stop()
+
+        if args.result_url:
+            g.job.result_url = args['result_url']
+        db.session.add(g.job)
+        db.session.commit()
+        return g.job, 204
+
+
+class JobAPI(Resource):
+    """
+    Start, update, and stop a single job as a user.
+    """
+    decorators = [get_job, authenticate]
+
     def get(self, job_id):
-        return g.job
+        """
+        Start a waiting job
+        """
+        if g.job.status != 'WAITING':
+            raise BadRequestError('Job is not waiting.')
+        rc = get_aws_instances(1, on_demand=True)
+        w = Worker(rc[0].id, g.job.id)
+        db.session.add(w)
+        db.session.commit()
+        return 'success', 204
 
     @marshal_with(job_fields)
     def put(self, job_id):
         """
-        Update job priority
+        Update job priority as a user.
         """
         job = g.job
         parser = reqparse.RequestParser()
@@ -40,22 +77,10 @@ class JobAPI(Resource):
         db.session.commit()
         return job, 204
 
-    # /api/jobs/start/<int:job_id>
-    def post(self, job_id):
-        """
-        Start a chosen job
-        """
-        if g.job.status != 'WAITING':
-            raise BadRequestError('Job is not waiting.')
-        rc = get_aws_instances(1, on_demand=True)
-        w = Worker(rc[0].id, g.job.id)
-        db.session.add(w)
-        db.session.commit()
-        return 'success', 204
-
-    # /api/jobs/stop/<int:job_id>
     def delete(self, job_id):
-        # FIXME: do not delete from db, just stop it
+        """
+        Stop a running job
+        """
         w = Worker.query.filter_by(job_id=g.job.id).first()
         w.stop()
         g.job.stop()
@@ -66,7 +91,7 @@ class JobAPI(Resource):
 
 class JobListAPI(Resource):
     """
-    all jobs
+    API for getting all jobs and add one job.
     """
     decorators = [authenticate]
 

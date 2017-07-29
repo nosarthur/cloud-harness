@@ -64,6 +64,7 @@ class WorkerAPI(Resource):
 
     def delete(self, worker_id):
         """
+        Stop the worker
         """
         w = Worker.query.get(worker_id)
         if w is None or w.date_finished:
@@ -74,7 +75,7 @@ class WorkerAPI(Resource):
         w.stop()
         db.session.add(w)
         db.session.commit()
-        return 'Worker deleted.', 204
+        return 'Worker stopped.', 204
 
 
 class WorkerListAPI(Resource):

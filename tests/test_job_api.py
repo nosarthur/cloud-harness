@@ -12,7 +12,7 @@ class TestAPI1:
     def test_get_all(self):
         # as administrator
         headers = [('Authorization', 'Bearer ' + self.admin_token)]
-        with self.app.test_request_context('/api/jobs/', headers=headers):
+        with self.app.test_request_context('/api/jobs', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
             jobs = json.loads(res.data)
@@ -37,7 +37,7 @@ class TestAPI1:
 
         # as user 1
         headers = [('Authorization', 'Bearer ' + self.u1_token)]
-        with self.app.test_request_context('/api/jobs/', headers=headers):
+        with self.app.test_request_context('/api/jobs', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
             jobs = json.loads(res.data)
@@ -47,7 +47,7 @@ class TestAPI1:
 
         # as user 2
         headers = [('Authorization', 'Bearer ' + self.u2_token)]
-        with self.app.test_request_context('/api/jobs/', headers=headers):
+        with self.app.test_request_context('/api/jobs', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 200
             jobs = json.loads(res.data)
@@ -56,8 +56,26 @@ class TestAPI1:
             assert j2['id'] == 2
             assert j3['id'] == 3
 
+    def test_no_token(self):
+        with self.app.test_request_context('/api/jobs'):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 400
+
+    def test_wrong_token(self):
+        headers = [('Authorization', 'Bearer ' + 'wrong token'),
+                   ('Content-Type', 'application/json')]
+        with self.app.test_request_context('/api/jobs', headers=headers):
+            res = self.app.full_dispatch_request()
+            assert res.status_code == 400
+
+# The following classes contain functions that change the database
+
+
+@pytest.mark.skip(reason="need to mock aws part")
+@pytest.mark.usefixtures('full_app')
+class TestStartStop:
     def test_get_one(self):
-        # admin gets everything
+        # admin can start everything
         headers = [('Authorization', 'Bearer ' + self.admin_token)]
         with self.app.test_request_context('/api/jobs/1', headers=headers):
             res = self.app.full_dispatch_request()
@@ -66,7 +84,7 @@ class TestAPI1:
             assert j['id'] == 1
             assert j['user_id'] == 1
 
-        # user1 gets job1
+        # user1 can start and stop job1
         headers = [('Authorization', 'Bearer ' + self.u1_token)]
         with self.app.test_request_context('/api/jobs/1', headers=headers):
             res = self.app.full_dispatch_request()
@@ -75,25 +93,11 @@ class TestAPI1:
             assert j['id'] == 1
             assert j['user_id'] == 1
 
-        # user1 cannot get job2
+        # user1 cannot control job2
         headers = [('Authorization', 'Bearer ' + self.u1_token)]
         with self.app.test_request_context('/api/jobs/2', headers=headers):
             res = self.app.full_dispatch_request()
             assert res.status_code == 400
-
-    def test_no_token(self):
-        with self.app.test_request_context('/api/jobs/'):
-            res = self.app.full_dispatch_request()
-            assert res.status_code == 400
-
-    def test_wrong_token(self):
-        headers = [('Authorization', 'Bearer ' + 'wrong token'),
-                   ('Content-Type', 'application/json')]
-        with self.app.test_request_context('/api/jobs/', headers=headers):
-            res = self.app.full_dispatch_request()
-            assert res.status_code == 400
-
-# The following classes contain functions that change the database
 
 
 @pytest.mark.skip(reason="need to mock aws part")
@@ -152,7 +156,7 @@ class TestAPI4:
     def test_post(self):
         headers = [('Authorization', 'Bearer ' + self.u1_token),
                    ('Content-Type', 'application/json')]
-        with self.app.test_request_context('/api/jobs/',
+        with self.app.test_request_context('/api/jobs',
                                            headers=headers,
                                            data=json.dumps({'priority': 2}),
                                            method='POST'):
@@ -162,3 +166,5 @@ class TestAPI4:
             assert j['id'] == 1
             assert j['user_id'] == 1
             assert j['priority'] == 2
+
+# FIXME: change job status as worker

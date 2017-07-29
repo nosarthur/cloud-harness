@@ -21,6 +21,6 @@ class SummaryAPI(Resource):
                          'running': running,
                          'finished': finished,
                          'failed': failed, },
-                'workers': {'working': working,
-                            'finished': completed, }
+                'workers': {'active': working,
+                            'inactive': completed, }
                 }

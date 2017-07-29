@@ -10,7 +10,7 @@ class TestAPI:
             assert res.status_code == 200
             summary = json.loads(res.data)
             assert summary == {u'workers': {
-                                    u'finished': 0, u'working': 2},
+                                    u'inactive': 0, u'active': 2},
                                u'jobs': {
                                     u'running': 1, u'failed': 0,
                                     u'waiting': 3, u'finished': 0}}

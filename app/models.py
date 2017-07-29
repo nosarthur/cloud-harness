@@ -118,7 +118,7 @@ class User(Base):
     def validate(cls, email, password):
         user = cls.query.filter_by(email=email).first()
         if user is None or not user.verify_password(password):
-            raise ValueError('fail login')
+            raise BadRequestError('Login failed.')
         return user
 
     def verify_password(self, password):
@@ -139,10 +139,8 @@ class User(Base):
             return jwt.encode(payload,
                               current_app.config['SECRET_KEY'],
                               algorithm='HS256')
-        except:
-            # FIXME: something needs to be done
-            # raise
-            return
+        except Exception as e:
+            raise BadRequestError('Cannot create JWT token: %s' % e)
 
     @staticmethod
     def decode_token(token):
@@ -153,9 +151,8 @@ class User(Base):
             payload = jwt.decode(token, current_app.config['SECRET_KEY'],
                                  algorithms=['HS256'])
             return int(payload['sub'])
-        except JWTError:
-            # raise
-            return 0
+        except JWTError as e:
+            raise BadRequestError('JWT token error: %s' % e)
 
 
 job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')
@@ -186,3 +183,8 @@ class Job(Base):
         if self.status == 'RUNNING':
             raise BadRequestError('Job has already started.')
         self.status = 'RUNNING'
+
+    def finish(self):
+        if self.status != 'RUNNING':
+            raise BadRequestError('Job is not running.')
+        self.status = 'FINISHED'

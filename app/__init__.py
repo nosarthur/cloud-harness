@@ -10,7 +10,7 @@ from config import config
 from .views.home import home
 from .views.auth import auth
 from .resources.summary import SummaryAPI
-from .resources.job import JobAPI, JobListAPI
+from .resources.job import JobAPI, JobListAPI, JobStatusAPI
 from .resources.worker import WorkerAPI, WorkerListAPI
 
 
@@ -24,10 +24,9 @@ def create_app(config_name):
 
     api = Api(app)
     api.add_resource(SummaryAPI, '/api/summary')
-    api.add_resource(JobAPI, '/api/jobs/<int:job_id>', endpoint='/jobs/')
-    api.add_resource(JobAPI, '/api/jobs/start/<int:job_id>', endpoint='/jobs/start/')
-    api.add_resource(JobAPI, '/api/jobs/stop/<int:job_id>', endpoint='/jobs/stop/')
-    api.add_resource(JobListAPI, '/api/jobs/')
+    api.add_resource(JobAPI, '/api/jobs/<int:job_id>')
+    api.add_resource(JobStatusAPI, '/api/jobstatus/<int:job_id>')
+    api.add_resource(JobListAPI, '/api/jobs')
     api.add_resource(WorkerAPI, '/api/workers/new', endpoint='/workers/new')
     api.add_resource(WorkerAPI, '/api/workers/<int:worker_id>', endpoint='/workers/')
     api.add_resource(WorkerListAPI, '/api/workers/')
