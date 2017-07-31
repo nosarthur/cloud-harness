@@ -25,16 +25,16 @@ Vue.component('job-card', {
     startJob: async function(jobId){
       try {
         let token = localStorage.token;
-        let response = await axios.get('/api/jobs/' + jobId, {},
+        let response = await axios.get('/api/jobs/' + jobId,
                 {headers: {'Authorization': "Bearer " + token}});
-      } catch (error) { console.log(error); };
+      } catch (error) { console.log(error.response.data.message); };
     },
     stopJob: async function(jobId){
       try {
         let token = localStorage.token;
         let response = await axios.delete('/api/jobs/' + jobId,
                 {headers: {'Authorization': "Bearer " + token}});
-      } catch (error) { console.log(error); };
+      } catch (error) { console.log(error.response.data.message); };
     },
   },
 })

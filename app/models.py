@@ -69,7 +69,7 @@ class Worker(Base):
         dump_aws_instance(self.instance_id, on_demand=True)
         self.date_finished = datetime.datetime.utcnow()
 
-    def check_health(self):
+    def checkHealth(self):
         # FIXME: make the return values more meaningful for debugging
         if not self.job_id:
             return False
@@ -105,7 +105,7 @@ class User(Base):
         self.password = password
         self.is_admin = is_admin
 
-    def is_owner(self, job_id):
+    def isOwner(self, job_id):
         if self.is_admin:
             return True
         ids = set(j.id for j in self.jobs)
@@ -117,14 +117,14 @@ class User(Base):
     @classmethod
     def validate(cls, email, password):
         user = cls.query.filter_by(email=email).first()
-        if user is None or not user.verify_password(password):
+        if user is None or not user.verifyPassword(password):
             raise BadRequestError('Login failed.')
         return user
 
-    def verify_password(self, password):
+    def verifyPassword(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def encode_token(self):
+    def encodeToken(self):
         """
         Generate authentication token
         """
@@ -143,7 +143,7 @@ class User(Base):
             raise BadRequestError('Cannot create JWT token: %s' % e)
 
     @staticmethod
-    def decode_token(token):
+    def decodeToken(token):
         """
         @return user_id
         """
@@ -152,10 +152,52 @@ class User(Base):
                                  algorithms=['HS256'])
             return int(payload['sub'])
         except JWTError as e:
-            raise BadRequestError('JWT token error: %s' % e)
+            raise BadRequestError('JWT error: %s' % e)
+
+
+class JobState(object):
+    """
+    Base class for various job states.
+    """
+    def __init__(self, job):
+        """
+        @type job: L{Job} instance
+        """
+        self.job = job
+
+    def goTo(self, status):
+        raise BadRequestError('Cannot go to %s state.' % status)
+
+
+class Finished(JobState):
+    pass
+
+
+class Stopped(JobState):
+    pass
+
+
+class Failed(JobState):
+    pass
+
+
+class Waiting(JobState):
+    def goTo(self, status):
+        if status != 'RUNNING':
+            raise BadRequestError('Cannot go to %s state.' % status)
+        self.job.status = 'RUNNING'
+
+
+class Running(JobState):
+    def goTo(self, status):
+        if status not in ('STOPPED', 'FINISHED', 'FAILED'):
+            raise BadRequestError('Job is not running.')
+        self.job.status = status
 
 
 job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')
+JOB_STATUS_MAP = dict(zip(job_status,
+                          (Waiting, Running, Finished, Failed, Stopped)))
 
 
 class Job(Base):
@@ -174,17 +216,8 @@ class Job(Base):
     def __repr__(self):
         return '<Job %d>' % self.id
 
-    def stop(self):
-        if self.status != 'RUNNING':
-            raise BadRequestError('Job is not running.')
-        self.status = 'STOPPED'
-
-    def start(self):
-        if self.status == 'RUNNING':
-            raise BadRequestError('Job has already started.')
-        self.status = 'RUNNING'
-
-    def finish(self):
-        if self.status != 'RUNNING':
-            raise BadRequestError('Job is not running.')
-        self.status = 'FINISHED'
+    def getStatus(self):
+        """
+        return instance of the L{JobStatus} subclasses
+        """
+        return JOB_STATUS_MAP(self.status)(self)

@@ -69,7 +69,7 @@ class WorkerAPI(Resource):
         w = Worker.query.get(worker_id)
         if w is None or w.date_finished:
             raise BadRequestError('Worker does not exist.')
-        if not g.user.is_owner(w.job_id):
+        if not g.user.isOwner(w.job_id):
             raise BadRequestError('Current user does not own job %d.'
                                   % w.job_id)
         w.stop()

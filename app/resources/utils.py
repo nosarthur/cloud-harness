@@ -14,7 +14,7 @@ def authenticate(f):
         auth_str = request.headers.get('Authorization')
         token = auth_str.split(' ')[1] if auth_str else ''
         if token:
-            user_id = User.decode_token(token)
+            user_id = User.decodeToken(token)
             user = User.query.get(int(user_id))
             if user:
                 g.user = user
@@ -32,7 +32,7 @@ def get_job(f):
         job = Job.query.get(kwargs.get('job_id'))
         if job is None:
             raise BadRequestError('Job does not exist.')
-        if not g.user.is_owner(job.id):
+        if not g.user.isOwner(job.id):
             raise BadRequestError('Current user does not own this job.')
         g.job = job
         return f(*args, **kwargs)

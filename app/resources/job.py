@@ -28,14 +28,8 @@ class JobStatusAPI(Resource):
         parser.add_argument('result_url', type=str, location='json')
         args = parser.parse_args(strict=True)
 
-        # FIXME: maybe use state pattern
-        #        g.job.changeStatus(args.status)
-        if args.status == 'RUNNING':
-            g.job.start()
-        if args.status == 'FINISHED':
-            g.job.finish()
-        if args.status == 'STOPPED':
-            g.job.stop()
+        job_status = g.job.getStatus()
+        job_status.goto(args.status)
 
         if args.result_url:
             g.job.result_url = args['result_url']

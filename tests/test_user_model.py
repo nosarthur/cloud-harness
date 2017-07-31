@@ -15,15 +15,15 @@ class TestUserModel:
 
     def test_password_verification(self):
         u = User('test', 'a@b.com', password='cat')
-        assert u.verify_password('cat')
-        assert not u.verify_password('dog')
+        assert u.verifyPassword('cat')
+        assert not u.verifyPassword('dog')
 
 
 @pytest.mark.usefixtures('vanilla_app')
 class TestUserDB:
     def test_validate_token(self):
         u = User.query.get(1)
-        token = u.encode_token()
-        user_id = User.decode_token(token)
+        token = u.encodeToken()
+        user_id = User.decodeToken(token)
         assert user_id == u.id
         assert User.validate('a@a.com', 'aaa') == u

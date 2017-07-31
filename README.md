@@ -8,6 +8,7 @@ A wep application for AWS management.
 
 * API access to jobs with JWT authentication
 * Start/stop AWS EC2 instances
+* Store input/output files in S3
 
 ## user guide
 

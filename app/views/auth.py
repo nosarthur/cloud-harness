@@ -20,7 +20,7 @@ def login():
         user = User.validate(args['email'], args['password'])
     except ValueError as e:
         return bad_request('Wrong email password combination.')
-    return jsonify({'token': user.encode_token(), 'name': user.name})
+    return jsonify({'token': user.encodeToken(), 'name': user.name})
 
 
 @auth.route('/logout')
