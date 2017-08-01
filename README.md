@@ -40,24 +40,24 @@ If not set, the app configuration defaults to `development`.
 
 To add a regular user, run 
 
-`python manager.py adduser abc@def.com -n "John Doe"`
+`python manage.py adduser abc@def.com -n "John Doe"`
 
 To add an administrator user, run 
 
-`python manager.py adduser abc@def.com -n "John Doe" -a`
+`python manage.py adduser abc@def.com -n "John Doe" -a`
 
 * Initialize database 
 
-`python manager.py initDB`
+`python manage.py initDB`
 
 To migrate database, run
 
 ```
-python manager.py db migrate
-python manager.py db upgrade
+python manage.py db migrate
+python manage.py db upgrade
 ```
 
 To test code, run
 
-`python manager.py test`
+`python manage.py test`
 

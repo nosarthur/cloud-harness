@@ -102,9 +102,10 @@ const vm = new Vue({
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         this.msg = e.response.data.message;
+        console.log(this.msg);
         switch (this.msg) {
           case 'Authentication failed.':
-          case 'JWT token error: Signature has expired.':
+          case 'JWT error: Signature has expired.':
             this.token = localStorage.token = '';
             this.signedIn = false;
             break;

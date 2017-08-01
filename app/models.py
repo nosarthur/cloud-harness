@@ -30,13 +30,16 @@ def get_aws_instances(n_workers=1, on_demand=False, price=None):
     @type price: C{float}
     """
     ubuntu_64bit = 'ami-d15a75c7'
+    amz201703 = 'ami-0e297018'
     s = boto3.Session(profile_name='dev', region_name='us-east-1')
     if on_demand:
         ec2 = s.resource('ec2')
-        rc = ec2.create_instances(ImageId=ubuntu_64bit,
+        rc = ec2.create_instances(ImageId=amz201703,
                                   InstanceType='t2.nano',
                                   MinCount=1,
                                   MaxCount=n_workers,
+                                  UserData='',
+                                  KeyName='harness',
                                   )
     else:  # spot instance
         client = s.client('ec2')
@@ -130,12 +133,11 @@ class User(Base):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow()
-                + datetime.timedelta(days=0, minutes=30),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'cloud-harness',
                 'sub': str(self.id)
-                }
+            }
             return jwt.encode(payload,
                               current_app.config['SECRET_KEY'],
                               algorithm='HS256')
@@ -181,11 +183,18 @@ class Failed(JobState):
     pass
 
 
+class Queued(JobState):
+    def goTo(self, status):
+        if status not in ('STOPPED', 'RUNNING', ):
+            raise BadRequestError('Queued job cannot go to %s state.' % status)
+        self.job.status = status
+
+
 class Waiting(JobState):
     def goTo(self, status):
-        if status != 'RUNNING':
-            raise BadRequestError('Cannot go to %s state.' % status)
-        self.job.status = 'RUNNING'
+        if status != 'QUEUED':
+            raise BadRequestError('Waiting job cannot go to %s state.' % status)
+        self.job.status = 'QUEUED'
 
 
 class Running(JobState):
@@ -195,9 +204,9 @@ class Running(JobState):
         self.job.status = status
 
 
-job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED')
+job_status = ('WAITING', 'RUNNING', 'FINISHED', 'FAILED', 'STOPPED', 'QUEUED')
 JOB_STATUS_MAP = dict(zip(job_status,
-                          (Waiting, Running, Finished, Failed, Stopped)))
+                          (Waiting, Running, Finished, Failed, Stopped, Queued)))
 
 
 class Job(Base):

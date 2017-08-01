@@ -50,9 +50,10 @@ class JobAPI(Resource):
         """
         if g.job.status != 'WAITING':
             raise BadRequestError('Job is not waiting.')
+        g.job.status = 'QUEUED'
         rc = get_aws_instances(1, on_demand=True)
         w = Worker(rc[0].id, g.job.id)
-        db.session.add(w)
+        db.session.add_all([g.job, w])
         db.session.commit()
         return 'success', 204
 
