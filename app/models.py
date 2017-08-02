@@ -1,4 +1,5 @@
 import boto3
+# import base64
 import datetime
 from jose import jwt, JWTError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,8 +21,10 @@ class Base(db.Model):
 def dump_aws_instance(instance_id, on_demand=False):
     s = boto3.Session(profile_name='dev')
     ec2 = s.resource('ec2', region_name='us-east-1')
-    rc = ec2.instances.filter(InstanceIds=[instance_id]).terminate()
-    if not rc:
+    ins = ec2.Instance(instance_id)
+    res = ins.terminate()
+    print(res['TerminatingInstances'][0]['CurrentState']['Name'])
+    if res['TerminatingInstances'][0]['CurrentState']['Name'] not in ('shutting-down', 'terminated'):
         raise BadRequestError('Cannot terminate AWS instance.')
 
 
@@ -29,7 +32,10 @@ def get_aws_instances(n_workers=1, on_demand=False, price=None):
     """
     @type price: C{float}
     """
-    ubuntu_64bit = 'ami-d15a75c7'
+    with open('scripts/worker.sh') as f:
+        startup = f.read()
+        print(startup)
+#        startup = base64.b64encode(startup.encode('ascii'))
     amz201703 = 'ami-0e297018'
     s = boto3.Session(profile_name='dev', region_name='us-east-1')
     if on_demand:
@@ -38,17 +44,23 @@ def get_aws_instances(n_workers=1, on_demand=False, price=None):
                                   InstanceType='t2.nano',
                                   MinCount=1,
                                   MaxCount=n_workers,
-                                  UserData='',
+                                  UserData=startup,
                                   KeyName='harness',
+                                  IamInstanceProfile={}
+                                      # 'Name': 'harness-worker'},
                                   )
     else:  # spot instance
         client = s.client('ec2')
         rc = client.request_spot_instances(
-                ImageId=ubuntu_64bit,
-                LaunchSpecification={'ImageId': ubuntu_64bit,
-                                     'InstanceType': 'm4.large', },
-                InstanceCount=n_workers,
+                DryRun=False,
                 SpotPrice=str(price),
+                Type='one-time',
+                LaunchSpecification={'ImageId': amz201703,
+                                     'KeyName': 'harness',
+                                     'InstanceType': 'm4.large',
+                                     'UserData': startup,
+                                     },
+                InstanceCount=n_workers,
                )
     if not rc:
         raise BadRequestError('Cannot get AWS instance.')
@@ -133,7 +145,7 @@ class User(Base):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=30),
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, hours=1),
                 'iat': datetime.datetime.utcnow(),
                 'iss': 'cloud-harness',
                 'sub': str(self.id)
@@ -229,4 +241,4 @@ class Job(Base):
         """
         return instance of the L{JobStatus} subclasses
         """
-        return JOB_STATUS_MAP(self.status)(self)
+        return JOB_STATUS_MAP[self.status](self)

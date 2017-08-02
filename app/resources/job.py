@@ -29,7 +29,7 @@ class JobStatusAPI(Resource):
         args = parser.parse_args(strict=True)
 
         job_status = g.job.getStatus()
-        job_status.goto(args.status)
+        job_status.goTo(args.status)
 
         if args.result_url:
             g.job.result_url = args['result_url']
@@ -78,7 +78,9 @@ class JobAPI(Resource):
         """
         w = Worker.query.filter_by(job_id=g.job.id).first()
         w.stop()
-        g.job.stop()
+        job_status = g.job.getStatus()
+        job_status.goTo('STOPPED')
+
         db.session.add_all([w, g.job])
         db.session.commit()
         return 'Job stopped.', 204

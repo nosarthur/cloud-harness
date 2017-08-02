@@ -46,9 +46,13 @@ To add an administrator user, run
 
 `python manage.py adduser abc@def.com -n "John Doe" -a`
 
-* Initialize database 
+To initialize database:
 
 `python manage.py initDB`
+
+To initialize database with all existing data cleared:
+
+`python manage.py initDB -d`
 
 To migrate database, run
 
