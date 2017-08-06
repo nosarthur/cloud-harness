@@ -21,11 +21,11 @@ class Base(db.Model):
 def dump_aws_instance(instance_id, on_demand=False):
     s = boto3.Session(profile_name='dev')
     ec2 = s.resource('ec2', region_name='us-east-1')
-    ins = ec2.Instance(instance_id)
-    res = ins.terminate()
-    print(res['TerminatingInstances'][0]['CurrentState']['Name'])
-    if res['TerminatingInstances'][0]['CurrentState']['Name'] not in ('shutting-down', 'terminated'):
-        raise BadRequestError('Cannot terminate AWS instance.')
+    try:
+        ec2.Instance(instance_id).terminate()
+    except Exception as e:
+        raise BadRequestError('Cannot terminate AWS instance %s: %s.' %
+                              (instance_id, e))
 
 
 def get_aws_instances(n_workers=1, on_demand=False, price=None):

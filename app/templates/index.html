@@ -101,7 +101,7 @@
             </div>
           </div>
         </div>
-        <job-card v-for='job in jobs' v-bind:job='job'></job-card>
+        <job-card v-for='job in jobs' :job='job' v-on:component-error='handleError'> </job-card>
       </div>
     </div>
   </div>
