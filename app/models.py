@@ -36,7 +36,7 @@ def get_aws_instances(n_workers=1, on_demand=False, price=None):
         startup = f.read()
         print(startup)
 #        startup = base64.b64encode(startup.encode('ascii'))
-    amz201703 = 'ami-0e297018'
+    amz201703 = 'ami-4fffc834'
     s = boto3.Session(profile_name='dev', region_name='us-east-1')
     if on_demand:
         ec2 = s.resource('ec2')
@@ -46,8 +46,7 @@ def get_aws_instances(n_workers=1, on_demand=False, price=None):
                                   MaxCount=n_workers,
                                   UserData=startup,
                                   KeyName='harness',
-                                  IamInstanceProfile={}
-                                      # 'Name': 'harness-worker'},
+                                  IamInstanceProfile={'Name': 'harness-worker'},
                                   )
     else:  # spot instance
         client = s.client('ec2')

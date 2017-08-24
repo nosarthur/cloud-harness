@@ -15,9 +15,9 @@ A wep application for AWS management.
 ### prerequisite
 
 * use a linux or mac machine
-* have psql installed and running
+* have psql installed and running (I use a database called dev for development. To create it, run `psql -c 'create database dev;'`. To connect to it, run `psql -d dev`.)
 * have python and `pip` installed
-* have aws credentials in `~/.aws/credentials` (I use `profile_name` dev)
+* have aws credentials in `~/.aws/credentials` (I use profile name `dev`)
 
 ### installation
 After downloading the code, go to the project root folder, create a virtual environment and install the required packages

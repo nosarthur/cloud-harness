@@ -12,4 +12,6 @@ python -m pip install boto3
 
 yum update -y
 yum install git -y
-git clone https://github.com/nosarthur/cloud-harness-worker.git
+git clone https://github.com/nosarthur/cloud-worker.git
+cd cloud-worker
+python loadit 30
